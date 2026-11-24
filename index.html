@@ -1,0 +1,2592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Gestão de Gastos" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Gestão de Gastos</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --primary: #0f172a;
+      --primary-ink: #ffffff;
+      --accent: #2563eb;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --ok: #15803d;
+      --ok-bg: #f0fdf4;
+      --warn: #b45309;
+      --warn-bg: #fffbeb;
+      --radius: 16px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
+      overflow-x: hidden;
+      min-height: 100%;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Barra superior estilo aplicativo nativo */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: var(--primary);
+      color: var(--primary-ink);
+      padding: calc(12px + var(--safe-top)) 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.16);
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .app-icon-mini {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .topbar-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .badge-role {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      color: #f8fafc;
+      white-space: nowrap;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.08s ease, opacity 0.15s ease, background-color 0.15s ease;
+      background: #e2e8f0;
+      color: var(--ink);
+      min-height: 44px;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+      opacity: 0.85;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-dark {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: var(--ink);
+    }
+
+    .btn-light-outline {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      min-height: 34px;
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 9px;
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      border-color: #fecaca;
+      color: var(--danger);
+    }
+
+    .btn-sm {
+      min-height: 36px;
+      padding: 6px 11px;
+      font-size: 13px;
+      border-radius: 9px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: calc(92px + var(--safe-bottom));
+    }
+
+    .login-wrap {
+      min-height: calc(100vh - 64px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 24px 20px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .login-title {
+      margin: 0 0 6px;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .login-sub {
+      margin: 0 0 18px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #334155;
+    }
+
+    .input, .select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 15px;
+      color: var(--ink);
+      background: #ffffff;
+    }
+
+    .input:focus, .select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    }
+
+    .quick-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line);
+    }
+
+    .install-banner {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      font-size: 12px;
+      color: #334155;
+    }
+
+    /* Navegação estilo app (topo no desktop e barra inferior fixa no mobile) */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .nav-tab {
+      flex: 1;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .nav-tab.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    @media (max-width: 639px) {
+      .nav-tabs {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 35;
+        margin-bottom: 0;
+        padding: 8px 12px calc(8px + var(--safe-bottom));
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid var(--line);
+        box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.08);
+        border-radius: 0;
+      }
+      .nav-tab {
+        border-radius: 11px;
+        min-height: 42px;
+        padding: 8px 6px;
+        font-size: 13px;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .card-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .grid-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .kpi-box {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .kpi-value {
+      font-size: 21px;
+      font-weight: 800;
+      margin-top: 4px;
+      color: var(--ink);
+    }
+
+    .kpi-sub {
+      font-size: 12px;
+      margin-top: 4px;
+      color: var(--muted);
+    }
+
+    .expense-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .expense-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 13px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .expense-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .expense-desc {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--ink);
+      word-break: break-word;
+    }
+
+    .expense-amount {
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .expense-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pill {
+      background: #f1f5f9;
+      color: #334155;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .expense-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      padding-top: 6px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .bar-row {
+      margin-bottom: 10px;
+    }
+
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      gap: 8px;
+    }
+
+    .bar-track {
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      min-width: 2%;
+    }
+
+    .alert {
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .alert-err {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+
+    .alert-ok {
+      background: var(--ok-bg);
+      color: var(--ok);
+      border: 1px solid #bbf7d0;
+    }
+
+    .alert-info {
+      background: var(--warn-bg);
+      color: var(--warn);
+      border: 1px solid #fde68a;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: calc(74px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: #ffffff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 90;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+      max-width: 92vw;
+      text-align: center;
+    }
+
+    @media (min-width: 640px) {
+      .toast {
+        bottom: 22px;
+      }
+    }
+
+    .store-row-edit {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #f8fafc;
+      margin-bottom: 10px;
+    }
+
+    @media (min-width: 560px) {
+      .store-row-edit-line {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .store-row-edit-line .input {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="app-brand">
+      <div class="app-icon-mini" aria-hidden="true">G</div>
+      <h1 class="topbar-title">Gestão de Gastos</h1>
+    </div>
+    <div class="topbar-right">
+      <span id="headerSyncBadge" class="badge-role">Local</span>
+      <span id="headerUserBadge" class="badge-role hidden"></span>
+      <button id="btnLogout" type="button" class="btn btn-light-outline hidden">Sair</button>
+    </div>
+  </header>
+
+  <section id="loginView" class="login-wrap">
+    <div class="login-card">
+      <h2 class="login-title">Entrar</h2>
+      <p class="login-sub">Acesse com sua conta para lançar e acompanhar gastos.</p>
+
+      <div id="loginFeedback" class="alert alert-err hidden"></div>
+
+      <form id="loginForm" autocomplete="on">
+        <div class="field">
+          <label for="loginEmail">E-mail</label>
+          <input id="loginEmail" name="email" type="email" class="input" required placeholder="seu@email.com" />
+        </div>
+        <div class="field">
+          <label for="loginPassword">Senha</label>
+          <input id="loginPassword" name="password" type="password" class="input" required placeholder="••••••••" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Acessar app</button>
+      </form>
+
+      <div style="margin-top: 12px; text-align: center;">
+        <button id="btnForgot" type="button" class="btn btn-outline btn-sm" style="width: 100%;">Esqueci minha senha</button>
+      </div>
+      <div id="setupBox" class="hidden" style="margin-top: 16px; border-top: 1px solid var(--line); padding-top: 14px;">
+        <h3 class="card-title">Primeiro acesso: criar gestor</h3>
+        <div class="field"><label for="setupName">Nome</label>
+        <input id="setupName" class="input" autocomplete="name" /></div>
+        <div class="field"><label for="setupEmail">E-mail</label>
+        <input id="setupEmail" type="email" class="input" autocomplete="email" /></div>
+        <div class="field"><label for="setupPass">Senha (mín. 6 caracteres)</label>
+        <input id="setupPass" type="password" class="input" autocomplete="new-password" /></div>
+        <button id="btnSetup" type="button" class="btn btn-dark" style="width: 100%; margin-top: 10px;">Criar gestor e entrar</button>
+      </div>
+
+      <div id="installAppBox" class="install-banner">
+        <div style="font-weight:700; margin-bottom:4px;">Instalar como aplicativo</div>
+        <div id="installHintText">No navegador, use o menu e toque em <strong>Adicionar à tela inicial</strong> ou <strong>Instalar app</strong>. No iPhone: <strong>Compartilhar</strong> e depois <strong>Adicionar à Tela de Início</strong>.</div>
+        <button id="btnInstallApp" type="button" class="btn btn-dark btn-sm hidden" style="margin-top:8px; width:100%;">Instalar aplicativo agora</button>
+      </div>
+    </div>
+  </section>
+
+  <main id="appView" class="container hidden">
+    <nav class="nav-tabs" aria-label="Navegação principal">
+      <button id="tabExpenses" type="button" class="nav-tab active" data-tab="expenses">Lançamentos</button>
+      <button id="tabDashboard" type="button" class="nav-tab" data-tab="dashboard">Dashboard</button>
+      <button id="tabSettings" type="button" class="nav-tab" data-tab="settings">Configurações</button>
+    </nav>
+
+    <section id="panelExpenses">
+      <div class="card">
+        <h2 id="formTitle" class="card-title">Novo Lançamento</h2>
+        <div id="expenseFormFeedback" class="alert alert-err hidden"></div>
+        <form id="expenseForm">
+          <input type="hidden" id="editExpenseId" value="" />
+          <div class="grid-2">
+            <div class="field">
+              <label for="expDate">Data</label>
+              <input id="expDate" type="date" class="input" required />
+            </div>
+            <div class="field">
+              <label for="expAmount">Valor (R$)</label>
+              <input id="expAmount" type="text" inputmode="decimal" class="input" required placeholder="0,00" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="expStore">Unidade</label>
+              <select id="expStore" class="select" required></select>
+            </div>
+            <div class="field">
+              <label for="expCategory">Categoria</label>
+              <select id="expCategory" class="select" required></select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="expPayment">Forma de Pagamento</label>
+              <select id="expPayment" class="select" required>
+                <option value="Pix">Pix</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Cartão Débito">Cartão Débito</option>
+                <option value="Cartão Crédito">Cartão Crédito</option>
+                <option value="Boleto">Boleto</option>
+                <option value="Depósito">Depósito</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="expDesc">Descrição</label>
+              <input id="expDesc" type="text" class="input" required placeholder="Ex.: Material de limpeza, frete..." />
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="btnSaveExpense" type="submit" class="btn btn-primary">Salvar lançamento</button>
+            <button id="btnCancelEdit" type="button" class="btn btn-outline hidden">Cancelar edição</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">
+          <span>Filtros e Lançamentos</span>
+          <span id="filteredTotalBadge" class="pill">R$ 0,00</span>
+        </h2>
+
+        <div class="grid-3" style="margin-bottom: 12px;">
+          <div class="field" style="margin-bottom: 0;">
+            <label for="filterStore">Unidade</label>
+            <select id="filterStore" class="select"></select>
+          </div>
+          <div class="field" style="margin-bottom: 0;">
+            <label for="filterCategory">Categoria</label>
+            <select id="filterCategory" class="select"></select>
+          </div>
+          <div class="field" style="margin-bottom: 0;">
+            <label for="filterSearch">Buscar</label>
+            <input id="filterSearch" type="search" class="input" placeholder="Descrição, pagamento..." />
+          </div>
+        </div>
+
+        <div id="expensesList" class="expense-list"></div>
+      </div>
+    </section>
+
+    <section id="panelDashboard" class="hidden">
+      <div class="card">
+        <h2 class="card-title">Período e Comparação</h2>
+        <div class="grid-2">
+          <div class="field" style="margin-bottom: 0;">
+            <label for="dashPeriod">Visualização</label>
+            <select id="dashPeriod" class="select">
+              <option value="daily">Diário</option>
+              <option value="weekly">Semanal (Seg–Dom)</option>
+              <option value="monthly" selected>Mensal</option>
+              <option value="yearly">Anual</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom: 0;">
+            <label for="dashRefDate">Data de referência</label>
+            <input id="dashRefDate" type="date" class="input" />
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 14px;">
+        <div class="kpi-box">
+          <div class="kpi-label">Total no Período</div>
+          <div id="kpiCurrentTotal" class="kpi-value">R$ 0,00</div>
+          <div id="kpiCurrentCount" class="kpi-sub">0 lançamentos</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">Período Anterior</div>
+          <div id="kpiPrevTotal" class="kpi-value">R$ 0,00</div>
+          <div id="kpiPrevCount" class="kpi-sub">0 lançamentos</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">Variação Percentual</div>
+          <div id="kpiDeltaPct" class="kpi-value">0,0%</div>
+          <div id="kpiDeltaLabel" class="kpi-sub">Sem base anterior</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="card-title">Orçamento do mês por categoria</h3>
+          <div id="dashBudgets"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Por Unidade</h3>
+          <div id="dashByStore"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Por Categoria</h3>
+          <div id="dashByCategory"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="panelSettings" class="hidden">
+      <div class="card">
+        <h2 class="card-title">Unidades</h2>
+        <div id="storesFeedback" class="alert alert-ok hidden"></div>
+        <div id="storesList"></div>
+
+        <form id="addStoreForm" style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line);">
+          <div class="field">
+            <label for="newStoreName">Nova unidade</label>
+            <div style="display: flex; gap: 8px;">
+              <input id="newStoreName" type="text" class="input" placeholder="Nome da nova unidade" required />
+              <button type="submit" class="btn btn-primary">Adicionar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Usuários e Permissões</h2>
+        <div id="usersList" style="margin-bottom: 14px;"></div>
+        <form id="addUserForm" style="padding-top: 14px; border-top: 1px solid var(--line);">
+          <div class="grid-2">
+            <div class="field">
+              <label for="newUserName">Nome</label>
+              <input autocomplete="off" id="newUserName" type="text" class="input" required placeholder="Nome do usuário" />
+            </div>
+            <div class="field">
+              <label for="newUserEmail">E-mail</label>
+              <input autocomplete="off" id="newUserEmail" type="email" class="input" required placeholder="usuario@empresa.com" />
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="newUserPass">Senha</label>
+              <input autocomplete="new-password" id="newUserPass" type="password" class="input" required placeholder="Mín. 4 caracteres" />
+            </div>
+            <div class="field">
+              <label for="newUserRole">Perfil</label>
+              <select id="newUserRole" class="select">
+                <option value="staff">Funcionário (Unidade)</option>
+                <option value="admin">Gestor (Admin)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" id="newUserStoreField">
+            <label for="newUserStore">Unidade vinculada</label>
+            <select id="newUserStore" class="select"></select>
+          </div>
+          <button type="submit" class="btn btn-dark">Salvar usuário</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Orçamento mensal por categoria</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div><label for="budCategory">Categoria</label><select id="budCategory" class="select"></select></div>
+          <div><label for="budValue">Limite do mês (R$)</label><input id="budValue" class="input" inputmode="decimal" placeholder="0,00" /></div>
+        </div>
+        <button id="btnBudSave" type="button" class="btn btn-dark">Salvar limite</button>
+        <div id="budList" style="margin-top: 12px;"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Gastos recorrentes (lançados todo mês)</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div><label for="recStore">Unidade</label><select id="recStore" class="select"></select></div>
+          <div><label for="recCategory">Categoria</label><select id="recCategory" class="select"></select></div>
+          <div><label for="recDesc">Descrição</label><input id="recDesc" class="input" placeholder="Ex.: Aluguel" /></div>
+          <div><label for="recValue">Valor (R$)</label><input id="recValue" class="input" inputmode="decimal" placeholder="0,00" /></div>
+          <div><label for="recDay">Dia do mês (1-28)</label><input id="recDay" type="number" min="1" max="28" value="5" class="input" /></div>
+        </div>
+        <button id="btnRecSave" type="button" class="btn btn-dark">Salvar recorrente</button>
+        <div id="recList" style="margin-top: 12px;"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Relatório mensal (contabilidade)</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div>
+            <label for="repMonth">Mês</label>
+            <input id="repMonth" type="month" class="input" />
+          </div>
+          <div>
+            <label for="repStore">Unidade</label>
+            <select id="repStore" class="select"></select>
+          </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <button id="btnReportPrint" type="button" class="btn btn-primary">Gerar relatório (PDF / imprimir)</button>
+          <button id="btnReportCsv" type="button" class="btn btn-outline">Baixar CSV do mês</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Backup, Exportação e Nuvem</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
+          <button id="btnExportCsv" type="button" class="btn btn-outline">Exportar CSV</button>
+          <button id="btnExportJson" type="button" class="btn btn-outline">Baixar Backup JSON</button>
+          <label class="btn btn-outline" style="cursor: pointer; margin: 0;">
+            Restaurar JSON
+            <input id="inputRestoreJson" type="file" accept="application/json,.json" class="hidden" />
+          </label>
+          <button id="btnSyncCloudNow" type="button" class="btn btn-primary">Sincronizar agora</button>
+        </div>
+
+        <details style="border-top: 1px solid var(--line); padding-top: 12px;">
+          <summary style="font-weight: 700; cursor: pointer; font-size: 14px;">Configuração Firebase (opcional)</summary>
+          <p style="font-size: 12px; color: var(--muted); margin: 8px 0 12px;">
+            Cole os campos do seu projeto Firebase para sincronizar com o Firestore. Funciona sem isso no modo local.
+          </p>
+          <div class="grid-2">
+            <div class="field">
+              <label for="fbApiKey">apiKey</label>
+              <input id="fbApiKey" type="text" class="input" placeholder="AIza..." />
+            </div>
+            <div class="field">
+              <label for="fbProjectId">projectId</label>
+              <input id="fbProjectId" type="text" class="input" placeholder="meu-projeto-id" />
+            </div>
+            <div class="field">
+              <label for="fbAuthDomain">authDomain</label>
+              <input id="fbAuthDomain" type="text" class="input" placeholder="projeto.firebaseapp.com" />
+            </div>
+            <div class="field">
+              <label for="fbAppId">appId</label>
+              <input id="fbAppId" type="text" class="input" placeholder="1:123:web:abc" />
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="btnSaveFirebase" type="button" class="btn btn-dark btn-sm">Salvar Firebase</button>
+            <button id="btnClearFirebase" type="button" class="btn btn-danger btn-sm">Limpar Firebase</button>
+          </div>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <div id="toastEl" class="toast hidden"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const STORAGE_KEY = "gestao_gastos_db_v1";
+      const SESSION_KEY = "gestao_gastos_session_v1";
+      const FB_CFG_KEY = "gestao_gastos_firebase_v1";
+
+      const DEFAULT_FIREBASE_CONFIG = {
+        apiKey: "",
+        authDomain: "",
+        projectId: "",
+        storageBucket: "",
+        messagingSenderId: "",
+        appId: ""
+      };
+
+      const STAFF_CATEGORIES = [
+        "Mercadorias",
+        "Frete / Entrega",
+        "Material de Limpeza",
+        "Material de Escritório",
+        "Manutenção",
+        "Alimentação",
+        "Depósitos",
+        "Outros"
+      ];
+
+      const ADMIN_CATEGORIES = [
+        "Mercadorias",
+        "Frete / Entrega",
+        "Material de Limpeza",
+        "Material de Escritório",
+        "Manutenção",
+        "Alimentação",
+        "Salários / Pró-labore",
+        "Aluguel / Condomínio",
+        "Energia / Água / Internet",
+        "Impostos / Taxas",
+        "Marketing",
+        "Depósitos",
+        "Outros"
+      ];
+
+      // Manifest PWA embutido via Blob para instalação direta como app sem depender de arquivo externo
+      function registerInlinePwaManifest() {
+        try {
+          const manifestObj = {
+            name: "Gestão de Gastos",
+            short_name: "Gastos",
+            start_url: ".",
+            scope: ".",
+            display: "standalone",
+            orientation: "portrait",
+            background_color: "#f1f5f9",
+            theme_color: "#0f172a",
+            icons: [
+              {
+                src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%230f172a'/%3E%3Ctext x='96' y='118' text-anchor='middle' font-family='Arial,sans-serif' font-size='88' font-weight='700' fill='%23ffffff'%3EG%3C/text%3E%3C/svg%3E",
+                sizes: "192x192",
+                type: "image/svg+xml",
+                purpose: "any maskable"
+              }
+            ]
+          };
+          const blob = new Blob([JSON.stringify(manifestObj)], { type: "application/manifest+json" });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("link");
+          link.rel = "manifest";
+          link.href = url;
+          document.head.appendChild(link);
+        } catch (_e) {}
+      }
+
+      let deferredInstallPrompt = null;
+
+      window.addEventListener("beforeinstallprompt", function (e) {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        const btn = document.getElementById("btnInstallApp");
+        if (btn) btn.classList.remove("hidden");
+      });
+
+      window.addEventListener("appinstalled", function () {
+        deferredInstallPrompt = null;
+        const box = document.getElementById("installAppBox");
+        if (box) box.classList.add("hidden");
+      });
+
+      function todayIso() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }
+
+      function createDefaultDb() {
+        return {
+          stores: [
+            { id: "unidade_1", name: "Unidade 1" },
+            { id: "unidade_2", name: "Unidade 2" },
+            { id: "unidade_3", name: "Unidade 3" }
+          ],
+          users: [],
+          expenses: [],
+          budgets: {},
+          recurring: [],
+          recoveryCodes: {}
+        };
+      }
+
+      function simpleHash(str) {
+        let h = 2166136261;
+        const s = String(str || "");
+        for (let i = 0; i < s.length; i++) {
+          h ^= s.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return "h_" + (h >>> 0).toString(16);
+      }
+
+      function toHex(buf) {
+        return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+      }
+
+      async function hashPassword(pass, salt) {
+        if (!(window.crypto && crypto.subtle)) return simpleHash(pass);
+        salt = salt || toHex(crypto.getRandomValues(new Uint8Array(12)));
+        const data = new TextEncoder().encode(salt + ":" + String(pass || ""));
+        return "s2_" + salt + "_" + toHex(await crypto.subtle.digest("SHA-256", data));
+      }
+
+      async function verifyPassword(user, pass) {
+        const stored = String(user.passwordHash || "");
+        if (stored.startsWith("s2_")) {
+          const salt = stored.split("_")[1];
+          return (await hashPassword(pass, salt)) === stored;
+        }
+        return stored === simpleHash(pass);
+      }
+
+      let loginFails = 0;
+      let loginLockUntil = 0;
+
+      function parseMoneyToCents(val) {
+        if (typeof val === "number" && Number.isFinite(val)) {
+          return Math.round(val * 100);
+        }
+        let raw = String(val || "").trim().replace(/[^\d,.-]/g, "");
+        if (!raw) return NaN;
+        if (raw.includes(",") && raw.includes(".")) {
+          if (raw.lastIndexOf(",") > raw.lastIndexOf(".")) {
+            raw = raw.replace(/\./g, "").replace(",", ".");
+          } else {
+            raw = raw.replace(/,/g, "");
+          }
+        } else if (raw.includes(",")) {
+          raw = raw.replace(",", ".");
+        } else if (/^\d{1,3}(\.\d{3})+$/.test(raw)) {
+          raw = raw.replace(/\./g, "");
+        }
+        const num = Number(raw);
+        if (!Number.isFinite(num) || num <= 0) return NaN;
+        return Math.round(num * 100);
+      }
+
+      function formatCents(cents) {
+        const safe = Number.isFinite(cents) ? cents : 0;
+        const sign = safe < 0 ? "-" : "";
+        const abs = Math.abs(Math.round(safe));
+        const reais = Math.floor(abs / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        const centavos = String(abs % 100).padStart(2, "0");
+        return `${sign}R$ ${reais},${centavos}`;
+      }
+
+      function formatCentsPlain(cents) {
+        const safe = Number.isFinite(cents) ? cents : 0;
+        const sign = safe < 0 ? "-" : "";
+        const abs = Math.abs(Math.round(safe));
+        const reais = Math.floor(abs / 100);
+        const centavos = String(abs % 100).padStart(2, "0");
+        return `${sign}${reais}.${centavos}`;
+      }
+
+      function safeCsvCell(value) {
+        const str = String(value == null ? "" : value);
+        const neutralized = /^[=+\-@\t\r\n]/.test(str) ? "'" + str : str;
+        return `"${neutralized.replace(/"/g, '""')}"`;
+      }
+
+      let db = loadLocalDb();
+      let currentUser = loadSession();
+      let activeTab = "expenses";
+      let toastTimer = null;
+
+      function loadLocalDb() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return createDefaultDb();
+          const parsed = JSON.parse(raw);
+          const def = createDefaultDb();
+          return {
+            stores: Array.isArray(parsed.stores) && parsed.stores.length ? parsed.stores : def.stores,
+            users: Array.isArray(parsed.users) && parsed.users.length ? parsed.users : def.users,
+            expenses: Array.isArray(parsed.expenses) ? parsed.expenses : [],
+            budgets: parsed.budgets && typeof parsed.budgets === "object" ? parsed.budgets : {},
+            recurring: Array.isArray(parsed.recurring) ? parsed.recurring : [],
+            recoveryCodes: parsed.recoveryCodes && typeof parsed.recoveryCodes === "object" ? parsed.recoveryCodes : {}
+          };
+        } catch (_e) {
+          return createDefaultDb();
+        }
+      }
+
+      function saveLocalDb(pushCloud = true) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+        } catch (_e) {
+          showToast("Aviso: armazenamento local cheio.");
+        }
+        if (pushCloud && currentUser) {
+          try { localStorage.setItem("gg_dirty", "1"); } catch (_e) {}
+          scheduleFirebasePush();
+        }
+      }
+
+      function loadSession() {
+        try {
+          const raw = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (!parsed || !parsed.id) return null;
+          const found = db.users.find((u) => u.id === parsed.id);
+          return found || null;
+        } catch (_e) {
+          return null;
+        }
+      }
+
+      function saveSession(user) {
+        currentUser = user || null;
+        try {
+          if (user) {
+            const payload = JSON.stringify({ id: user.id });
+            sessionStorage.setItem(SESSION_KEY, payload);
+            localStorage.setItem(SESSION_KEY, payload);
+          } else {
+            sessionStorage.removeItem(SESSION_KEY);
+            localStorage.removeItem(SESSION_KEY);
+          }
+        } catch (_e) {}
+      }
+
+      function showToast(msg) {
+        const el = document.getElementById("toastEl");
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.remove("hidden");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          el.classList.add("hidden");
+        }, 2600);
+      }
+
+      function getStoreName(storeId, fallbackSnapshot) {
+        if (!storeId) return fallbackSnapshot || "Unidade";
+        const found = db.stores.find((s) => s.id === storeId);
+        if (found) return found.name;
+        return fallbackSnapshot || storeId;
+      }
+
+      function isAdmin() {
+        return Boolean(currentUser && currentUser.role === "admin");
+      }
+
+      function getCategoriesForUser() {
+        return isAdmin() ? ADMIN_CATEGORIES : STAFF_CATEGORIES;
+      }
+
+      function setSyncBadge(text, ok = false) {
+        const badge = document.getElementById("headerSyncBadge");
+        if (!badge) return;
+        badge.textContent = text;
+        badge.style.background = ok ? "rgba(21, 128, 61, 0.35)" : "rgba(255, 255, 255, 0.14)";
+      }
+
+      function renderAuthState() {
+        const loginView = document.getElementById("loginView");
+        const appView = document.getElementById("appView");
+        const userBadge = document.getElementById("headerUserBadge");
+        const btnLogout = document.getElementById("btnLogout");
+        const tabDash = document.getElementById("tabDashboard");
+        const tabCfg = document.getElementById("tabSettings");
+
+        if (!currentUser) {
+          loginView.classList.remove("hidden");
+          appView.classList.add("hidden");
+          userBadge.classList.add("hidden");
+          btnLogout.classList.add("hidden");
+          document.getElementById("setupBox").classList.toggle("hidden", db.users.length > 0);
+          return;
+        }
+
+        loginView.classList.add("hidden");
+        appView.classList.remove("hidden");
+        btnLogout.classList.remove("hidden");
+        userBadge.classList.remove("hidden");
+
+        if (isAdmin()) {
+          userBadge.textContent = `${currentUser.name} · Gestor`;
+          tabDash.classList.remove("hidden");
+          tabCfg.classList.remove("hidden");
+        } else {
+          const uName = getStoreName(currentUser.storeId, "Unidade");
+          userBadge.textContent = `${currentUser.name} · ${uName}`;
+          tabDash.classList.add("hidden");
+          tabCfg.classList.add("hidden");
+          if (activeTab === "dashboard" || activeTab === "settings") {
+            activeTab = "expenses";
+          }
+        }
+
+        switchTab(activeTab);
+        populateFormOptions();
+        renderExpenses();
+        if (isAdmin()) {
+          renderDashboard();
+          renderSettings();
+        }
+      }
+
+      function switchTab(tabName) {
+        if (!isAdmin() && (tabName === "dashboard" || tabName === "settings")) {
+          tabName = "expenses";
+        }
+        activeTab = tabName;
+        if (isAdmin()) runRecurring();
+
+        document.querySelectorAll(".nav-tab").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.tab === tabName);
+        });
+
+        document.getElementById("panelExpenses").classList.toggle("hidden", tabName !== "expenses");
+        document.getElementById("panelDashboard").classList.toggle("hidden", tabName !== "dashboard" || !isAdmin());
+        document.getElementById("panelSettings").classList.toggle("hidden", tabName !== "settings" || !isAdmin());
+
+        if (tabName === "dashboard" && isAdmin()) {
+          renderDashboard();
+          renderBudgetsDash();
+        }
+        if (tabName === "settings" && isAdmin()) {
+          renderSettings();
+          fillReportControls();
+        }
+        if (tabName === "expenses") renderExpenses();
+      }
+
+      function categoryNames() {
+        return Array.from(document.getElementById("expCategory").options).map((o) => o.value).filter(Boolean);
+      }
+
+      function renderBudgetSettings() {
+        const opts = categoryNames().map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+        ["budCategory", "recCategory"].forEach((id) => {
+          const el = document.getElementById(id);
+          const prev = el.value;
+          el.innerHTML = opts;
+          if (prev) el.value = prev;
+        });
+        const rs = document.getElementById("recStore");
+        const prevS = rs.value;
+        rs.innerHTML = db.stores.map((x) => `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}</option>`).join("");
+        if (prevS) rs.value = prevS;
+        const b = Object.entries(db.budgets || {});
+        document.getElementById("budList").innerHTML = b.length
+          ? b.map(([c, v]) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);"><span>${escapeHtml(c)}: <b>${formatCents(v)}</b></span><button type="button" class="btn btn-danger btn-sm" data-bud="${escapeHtml(c)}">Remover</button></div>`).join("")
+          : '<span style="color:var(--muted);font-size:13px;">Nenhum limite definido.</span>';
+        const r = db.recurring || [];
+        document.getElementById("recList").innerHTML = r.length
+          ? r.map((x) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);"><span>${escapeHtml(x.description)} · ${escapeHtml(getStoreName(x.storeId, ""))} · dia ${x.day} · <b>${formatCents(x.amountCents)}</b></span><button type="button" class="btn btn-danger btn-sm" data-rec="${escapeHtml(x.id)}">Remover</button></div>`).join("")
+          : '<span style="color:var(--muted);font-size:13px;">Nenhum gasto recorrente.</span>';
+      }
+
+      function renderBudgetsDash() {
+        const box = document.getElementById("dashBudgets");
+        const b = Object.entries(db.budgets || {});
+        if (!b.length) {
+          box.innerHTML = '<span style="color:var(--muted);font-size:13px;">Defina limites em Configurações.</span>';
+          return;
+        }
+        const ym = todayIso().slice(0, 7);
+        const spent = {};
+        db.expenses.forEach((x) => {
+          if (!x.deleted && String(x.date || "").startsWith(ym)) spent[x.category] = (spent[x.category] || 0) + (x.amountCents || 0);
+        });
+        box.innerHTML = b.map(([c, lim]) => {
+          const v = spent[c] || 0;
+          const pct = lim ? Math.round((v / lim) * 100) : 0;
+          const color = pct >= 100 ? "#c0392b" : pct >= 80 ? "#d99a00" : "#2e9e5b";
+          const msg = pct >= 100 ? "Limite ultrapassado" : pct >= 80 ? "Perto do limite" : "Dentro do limite";
+          return `<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:13px;"><b>${escapeHtml(c)}</b><span>${formatCents(v)} / ${formatCents(lim)} (${pct}%)</span></div><div style="height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin:4px 0;"><div style="height:100%;width:${Math.min(100, pct)}%;background:${color};"></div></div><div style="font-size:12px;color:${color};">${msg}</div></div>`;
+        }).join("");
+      }
+
+      function runRecurring() {
+        if (!Array.isArray(db.recurring) || !db.recurring.length) return;
+        const today = todayIso();
+        let changed = false;
+        db.recurring.forEach((r) => {
+          for (let i = 0; i < 24 && r.next; i++) {
+            const date = `${r.next}-${String(r.day).padStart(2, "0")}`;
+            if (date > today) break;
+            const id = `rec_${r.id}_${r.next}`;
+            if (!db.expenses.some((x) => x.id === id)) {
+              db.expenses.unshift({ id, storeId: r.storeId, storeNameSnapshot: getStoreName(r.storeId, ""), date, category: r.category, paymentMethod: r.paymentMethod || "Pix", description: r.description, amountCents: r.amountCents, createdAt: new Date().toISOString(), recurringId: r.id });
+            }
+            const [y, m] = r.next.split("-").map(Number);
+            r.next = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`;
+            changed = true;
+          }
+        });
+        if (changed) saveLocalDb(true);
+      }
+
+      function fillReportControls() {
+        renderBudgetSettings();
+        const m = document.getElementById("repMonth");
+        const st = document.getElementById("repStore");
+        if (!m || !st) return;
+        if (!m.value) m.value = todayIso().slice(0, 7);
+        const prev = st.value;
+        st.innerHTML = '<option value="">Todas as unidades</option>' +
+          db.stores.map((x) => `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}</option>`).join("");
+        st.value = db.stores.some((x) => x.id === prev) ? prev : "";
+      }
+
+      function reportItems() {
+        const ym = document.getElementById("repMonth").value;
+        const sid = document.getElementById("repStore").value;
+        if (!/^\d{4}-\d{2}$/.test(ym)) return null;
+        const items = db.expenses
+          .filter((x) => !x.deleted && String(x.date || "").startsWith(ym) && (!sid || x.storeId === sid))
+          .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+        return { ym, sid, items };
+      }
+
+      function brDate(iso) {
+        const p = String(iso || "").split("-");
+        return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : String(iso || "");
+      }
+
+      function sumBy(items, keyFn) {
+        const m = new Map();
+        items.forEach((x) => m.set(keyFn(x), (m.get(keyFn(x)) || 0) + (x.amountCents || 0)));
+        return Array.from(m.entries()).sort((a, b) => b[1] - a[1]);
+      }
+
+      function buildReportHtml(r) {
+        const [y, mo] = r.ym.split("-").map(Number);
+        const label = new Date(y, mo - 1, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+        const total = r.items.reduce((a, x) => a + (x.amountCents || 0), 0);
+        const storeLabel = r.sid ? getStoreName(r.sid, "") : "Todas as unidades";
+        const table = (title, rows) => `<h2>${title}</h2><table><tr><th>${title.replace("Por ", "")}</th><th class="n">Total</th><th class="n">%</th></tr>` +
+          rows.map(([k, v]) => `<tr><td>${escapeHtml(k)}</td><td class="n">${formatCents(v)}</td><td class="n">${total ? ((v / total) * 100).toFixed(1).replace(".", ",") : "0,0"}%</td></tr>`).join("") + "</table>";
+        const unit = (x) => getStoreName(x.storeId, x.storeNameSnapshot);
+        return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório ${escapeHtml(label)}</title>
+<style>body{font:13px Arial,sans-serif;color:#111;margin:24px}h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:22px 0 6px}
+table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #ccc;padding:5px 6px;text-align:left}th{background:#f1f1f1}
+.n{text-align:right;white-space:nowrap}.tot{font-weight:700;font-size:15px}.meta{color:#555;margin-bottom:10px}@media print{body{margin:10mm}}</style></head><body>
+<h1>Relatório mensal de gastos</h1>
+<div class="meta">Período: ${escapeHtml(label)} &nbsp;|&nbsp; ${escapeHtml(storeLabel)} &nbsp;|&nbsp; Emitido em ${brDate(todayIso())}</div>
+<div class="tot">Total do mês: ${formatCents(total)} &nbsp;(${r.items.length} lançamentos)</div>
+${table("Por categoria", sumBy(r.items, (x) => x.category || "Sem categoria"))}
+${table("Por forma de pagamento", sumBy(r.items, (x) => x.paymentMethod || "Pix"))}
+${r.sid ? "" : table("Por unidade", sumBy(r.items, unit))}
+<h2>Lançamentos</h2><table><tr><th>Data</th><th>Unidade</th><th>Categoria</th><th>Pagamento</th><th>Descrição</th><th class="n">Valor</th></tr>
+${r.items.map((x) => `<tr><td>${brDate(x.date)}</td><td>${escapeHtml(unit(x))}</td><td>${escapeHtml(x.category || "")}</td><td>${escapeHtml(x.paymentMethod || "Pix")}</td><td>${escapeHtml(x.description || "")}</td><td class="n">${formatCents(x.amountCents || 0)}</td></tr>`).join("")}
+<tr><td colspan="5" class="tot">Total</td><td class="n tot">${formatCents(total)}</td></tr></table></body></html>`;
+      }
+
+      function populateFormOptions() {
+        const expStoreSel = document.getElementById("expStore");
+        const filterStoreSel = document.getElementById("filterStore");
+        const prevFilterStore = filterStoreSel.value;
+
+        if (isAdmin()) {
+          expStoreSel.disabled = false;
+          expStoreSel.innerHTML = db.stores
+            .map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`)
+            .join("");
+
+          const validStores = db.stores.filter((s) => {
+            const idLower = String(s.id || "").toLowerCase();
+            const nameLower = String(s.name || "").toLowerCase();
+            return idLower !== "geral" && idLower !== "geral_rota" && !nameLower.includes("geral") && !nameLower.includes("rota");
+          });
+
+          filterStoreSel.disabled = false;
+          filterStoreSel.innerHTML =
+            `<option value="all">Todas as unidades</option>` +
+            validStores.map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`).join("");
+
+          if (prevFilterStore && Array.from(filterStoreSel.options).some((o) => o.value === prevFilterStore)) {
+            filterStoreSel.value = prevFilterStore;
+          } else {
+            filterStoreSel.value = "all";
+          }
+        } else {
+          const ownStore = db.stores.find((s) => s.id === currentUser.storeId);
+          const ownId = ownStore ? ownStore.id : (currentUser.storeId || "");
+          const ownLabel = ownStore ? ownStore.name : (currentUser.storeId || "Unidade");
+
+          expStoreSel.innerHTML = `<option value="${escapeHtml(ownId)}">${escapeHtml(ownLabel)}</option>`;
+          expStoreSel.value = ownId;
+          expStoreSel.disabled = true;
+
+          filterStoreSel.innerHTML = `<option value="${escapeHtml(ownId)}">${escapeHtml(ownLabel)}</option>`;
+          filterStoreSel.value = ownId;
+          filterStoreSel.disabled = true;
+        }
+
+        const cats = getCategoriesForUser();
+        const expCatSel = document.getElementById("expCategory");
+        const filterCatSel = document.getElementById("filterCategory");
+        const prevExpCat = expCatSel.value;
+        const prevFilterCat = filterCatSel.value;
+
+        expCatSel.innerHTML = cats.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+        if (prevExpCat && cats.includes(prevExpCat)) expCatSel.value = prevExpCat;
+
+        filterCatSel.innerHTML =
+          `<option value="all">Todas as categorias</option>` +
+          cats.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+        if (prevFilterCat && Array.from(filterCatSel.options).some((o) => o.value === prevFilterCat)) {
+          filterCatSel.value = prevFilterCat;
+        }
+      }
+
+      function escapeHtml(str) {
+        return String(str == null ? "" : str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function getVisibleExpenses() {
+        if (!currentUser) return [];
+        if (isAdmin()) return db.expenses.filter((e) => !e.deleted);
+        return db.expenses.filter((e) => !e.deleted && e.storeId === currentUser.storeId);
+      }
+
+      function getFilteredExpenses() {
+        let rows = getVisibleExpenses();
+        const storeVal = document.getElementById("filterStore").value;
+        const catVal = document.getElementById("filterCategory").value;
+        const searchVal = String(document.getElementById("filterSearch").value || "").trim().toLowerCase();
+
+        if (!isAdmin()) {
+          rows = rows.filter((e) => e.storeId === currentUser.storeId);
+        } else if (storeVal && storeVal !== "all") {
+          rows = rows.filter((e) => e.storeId === storeVal);
+        }
+
+        if (catVal && catVal !== "all") {
+          rows = rows.filter((e) => e.category === catVal);
+        }
+
+        if (searchVal) {
+          rows = rows.filter((e) => {
+            const sName = getStoreName(e.storeId, e.storeNameSnapshot).toLowerCase();
+            return (
+              String(e.description || "").toLowerCase().includes(searchVal) ||
+              String(e.category || "").toLowerCase().includes(searchVal) ||
+              String(e.paymentMethod || "").toLowerCase().includes(searchVal) ||
+              sName.includes(searchVal)
+            );
+          });
+        }
+
+        rows.sort((a, b) => {
+          if (a.date !== b.date) return b.date.localeCompare(a.date);
+          return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
+        });
+        return rows;
+      }
+
+      function renderExpenses() {
+        const listEl = document.getElementById("expensesList");
+        const totalBadge = document.getElementById("filteredTotalBadge");
+        if (!listEl || !totalBadge) return;
+
+        const rows = getFilteredExpenses();
+        const totalCents = rows.reduce((acc, item) => acc + (Number(item.amountCents) || 0), 0);
+        totalBadge.textContent = formatCents(totalCents);
+
+        if (!rows.length) {
+          listEl.innerHTML = `<div class="alert alert-info" style="margin-bottom:0;">Nenhum lançamento encontrado.</div>`;
+          return;
+        }
+
+        listEl.innerHTML = rows
+          .map((item) => {
+            const storeLabel = getStoreName(item.storeId, item.storeNameSnapshot);
+            const canModify = isAdmin() || (item.storeId === currentUser.storeId && item.createdBy === currentUser.id);
+            return `
+              <article class="expense-item">
+                <div class="expense-top">
+                  <div class="expense-desc">${escapeHtml(item.description)}</div>
+                  <div class="expense-amount">${escapeHtml(formatCents(item.amountCents))}</div>
+                </div>
+                <div class="expense-meta">
+                  <span class="pill">${escapeHtml(item.date)}</span>
+                  <span class="pill">${escapeHtml(storeLabel)}</span>
+                  <span class="pill">${escapeHtml(item.category)}</span>
+                  <span class="pill">${escapeHtml(item.paymentMethod || "Pix")}</span>
+                </div>
+                ${
+                  canModify
+                    ? `<div class="expense-actions">
+                        <button type="button" class="btn btn-outline btn-sm" data-action="edit" data-id="${escapeHtml(item.id)}">Editar</button>
+                        <button type="button" class="btn btn-danger btn-sm" data-action="delete" data-id="${escapeHtml(item.id)}">Excluir</button>
+                      </div>`
+                    : ""
+                }
+              </article>
+            `;
+          })
+          .join("");
+      }
+
+      function resetExpenseForm() {
+        document.getElementById("editExpenseId").value = "";
+        document.getElementById("formTitle").textContent = "Novo Lançamento";
+        document.getElementById("btnSaveExpense").textContent = "Salvar lançamento";
+        document.getElementById("btnCancelEdit").classList.add("hidden");
+        document.getElementById("expDate").value = todayIso();
+        document.getElementById("expAmount").value = "";
+        document.getElementById("expDesc").value = "";
+        document.getElementById("expPayment").value = "Pix";
+        populateFormOptions();
+        hideFeedback("expenseFormFeedback");
+      }
+
+      function showFeedback(id, msg, type = "err") {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = msg;
+        el.className = `alert alert-${type}`;
+        el.classList.remove("hidden");
+      }
+
+      function hideFeedback(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add("hidden");
+      }
+
+      function getPeriodRange(period, refDateStr) {
+        const base = parseIsoDate(refDateStr || todayIso());
+        const y = base.getFullYear();
+        const m = base.getMonth();
+        const d = base.getDate();
+
+        if (period === "daily") {
+          const curStart = new Date(y, m, d);
+          const curEnd = new Date(y, m, d);
+          const prevStart = new Date(y, m, d - 1);
+          const prevEnd = new Date(y, m, d - 1);
+          return { curStart, curEnd, prevStart, prevEnd, label: "vs. dia anterior" };
+        }
+
+        if (period === "weekly") {
+          const dayOfWeek = base.getDay();
+          const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+          const curStart = new Date(y, m, d + diffToMonday);
+          const curEnd = new Date(curStart.getFullYear(), curStart.getMonth(), curStart.getDate() + 6);
+          const prevStart = new Date(curStart.getFullYear(), curStart.getMonth(), curStart.getDate() - 7);
+          const prevEnd = new Date(prevStart.getFullYear(), prevStart.getMonth(), prevStart.getDate() + 6);
+          return { curStart, curEnd, prevStart, prevEnd, label: "vs. semana anterior" };
+        }
+
+        if (period === "yearly") {
+          const curStart = new Date(y, 0, 1);
+          const curEnd = new Date(y, 11, 31);
+          const prevStart = new Date(y - 1, 0, 1);
+          const prevEnd = new Date(y - 1, 11, 31);
+          return { curStart, curEnd, prevStart, prevEnd, label: "vs. ano anterior" };
+        }
+
+        const curStart = new Date(y, m, 1);
+        const curEnd = new Date(y, m + 1, 0);
+        const prevStart = new Date(y, m - 1, 1);
+        const prevEnd = new Date(y, m, 0);
+        return { curStart, curEnd, prevStart, prevEnd, label: "vs. mês anterior" };
+      }
+
+      function parseIsoDate(str) {
+        const parts = String(str || "").split("-");
+        if (parts.length === 3) {
+          const dt = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+          if (!Number.isNaN(dt.getTime())) return dt;
+        }
+        return new Date();
+      }
+
+      function toIsoDate(dt) {
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth() + 1).padStart(2, "0");
+        const d = String(dt.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      }
+
+      function renderDashboard() {
+        if (!isAdmin()) return;
+        const period = document.getElementById("dashPeriod").value || "monthly";
+        const refInput = document.getElementById("dashRefDate");
+        if (!refInput.value) refInput.value = todayIso();
+
+        const range = getPeriodRange(period, refInput.value);
+        const sCur = toIsoDate(range.curStart);
+        const eCur = toIsoDate(range.curEnd);
+        const sPrev = toIsoDate(range.prevStart);
+        const ePrev = toIsoDate(range.prevEnd);
+
+        const curItems = db.expenses.filter((x) => !x.deleted && x.date >= sCur && x.date <= eCur);
+        const prevItems = db.expenses.filter((x) => !x.deleted && x.date >= sPrev && x.date <= ePrev);
+
+        const curTotal = curItems.reduce((a, b) => a + (Number(b.amountCents) || 0), 0);
+        const prevTotal = prevItems.reduce((a, b) => a + (Number(b.amountCents) || 0), 0);
+
+        document.getElementById("kpiCurrentTotal").textContent = formatCents(curTotal);
+        document.getElementById("kpiCurrentCount").textContent = `${curItems.length} lançamento(s)`;
+        document.getElementById("kpiPrevTotal").textContent = formatCents(prevTotal);
+        document.getElementById("kpiPrevCount").textContent = `${prevItems.length} lançamento(s)`;
+
+        const deltaEl = document.getElementById("kpiDeltaPct");
+        const deltaLbl = document.getElementById("kpiDeltaLabel");
+        deltaLbl.textContent = range.label;
+
+        if (prevTotal <= 0 && curTotal <= 0) {
+          deltaEl.textContent = "0,0%";
+          deltaEl.style.color = "var(--ink)";
+        } else if (prevTotal <= 0 && curTotal > 0) {
+          deltaEl.textContent = "+100,0%";
+          deltaEl.style.color = "var(--danger)";
+        } else {
+          const pct = ((curTotal - prevTotal) / prevTotal) * 100;
+          const sign = pct > 0 ? "+" : "";
+          deltaEl.textContent = `${sign}${pct.toFixed(1).replace(".", ",")}%`;
+          deltaEl.style.color = pct > 0 ? "var(--danger)" : pct < 0 ? "var(--ok)" : "var(--ink)";
+        }
+
+        const byStoreMap = new Map();
+        const byCatMap = new Map();
+
+        curItems.forEach((it) => {
+          const val = Number(it.amountCents) || 0;
+          const sName = getStoreName(it.storeId, it.storeNameSnapshot);
+          byStoreMap.set(sName, (byStoreMap.get(sName) || 0) + val);
+          const cName = it.category || "Outros";
+          byCatMap.set(cName, (byCatMap.get(cName) || 0) + val);
+        });
+
+        renderBars("dashByStore", Array.from(byStoreMap.entries()).sort((a, b) => b[1] - a[1]), curTotal);
+        renderBars("dashByCategory", Array.from(byCatMap.entries()).sort((a, b) => b[1] - a[1]), curTotal);
+      }
+
+      function renderBars(containerId, entries, totalCents) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        if (!entries.length || totalCents <= 0) {
+          el.innerHTML = `<div style="font-size:13px; color:var(--muted);">Sem dados no período selecionado.</div>`;
+          return;
+        }
+        el.innerHTML = entries
+          .map(([label, cents]) => {
+            const pct = Math.min(100, Math.max(2, (cents / totalCents) * 100));
+            return `
+              <div class="bar-row">
+                <div class="bar-head">
+                  <span>${escapeHtml(label)}</span>
+                  <span>${escapeHtml(formatCents(cents))}</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: ${pct.toFixed(1)}%;"></div>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      function renderSettings() {
+        if (!isAdmin()) return;
+        const storesList = document.getElementById("storesList");
+        storesList.innerHTML = db.stores
+          .map((s) => {
+            const canDelete = db.stores.length > 1;
+            return `
+              <div class="store-row-edit" data-store-id="${escapeHtml(s.id)}">
+                <div class="store-row-edit-line">
+                  <input type="text" class="input store-name-input" value="${escapeHtml(s.name)}" aria-label="Nome da unidade" />
+                  <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button type="button" class="btn btn-primary btn-sm" data-store-action="rename" data-id="${escapeHtml(s.id)}">Salvar nome</button>
+                    ${
+                      canDelete
+                        ? `<button type="button" class="btn btn-danger btn-sm" data-store-action="delete" data-id="${escapeHtml(s.id)}">Excluir</button>`
+                        : ""
+                    }
+                  </div>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+
+        const usersList = document.getElementById("usersList");
+        usersList.innerHTML = db.users
+          .map((u) => {
+            const roleLabel = u.role === "admin" ? "Gestor" : `Unidade: ${getStoreName(u.storeId, "-")}`;
+            return `
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;">
+                <div>
+                  <strong>${escapeHtml(u.name)}</strong> · ${escapeHtml(u.email)}<br/>
+                  <span style="color:var(--muted);">${escapeHtml(roleLabel)}</span>
+                </div>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <button type="button" class="btn btn-outline btn-sm" data-user-action="reset" data-id="${escapeHtml(u.id)}">Senha</button>
+                  ${
+                    u.id !== currentUser.id
+                      ? `<button type="button" class="btn btn-danger btn-sm" data-user-action="delete" data-id="${escapeHtml(u.id)}">Remover</button>`
+                      : `<span class="pill">Atual</span>`
+                  }
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+
+        const newUserStoreSel = document.getElementById("newUserStore");
+        newUserStoreSel.innerHTML = db.stores
+          .map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`)
+          .join("");
+
+        const cfg = getFirebaseConfig();
+        document.getElementById("fbApiKey").value = cfg.apiKey || "";
+        document.getElementById("fbProjectId").value = cfg.projectId || "";
+        document.getElementById("fbAuthDomain").value = cfg.authDomain || "";
+        document.getElementById("fbAppId").value = cfg.appId || "";
+      }
+
+      let fbDbInstance = null;
+      let fbLoadingPromise = null;
+      let fbPushTimer = null;
+
+      function getFirebaseConfig() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(FB_CFG_KEY) || "null");
+          return Object.assign({}, DEFAULT_FIREBASE_CONFIG, saved || {});
+        } catch (_e) {
+          return Object.assign({}, DEFAULT_FIREBASE_CONFIG);
+        }
+      }
+
+      function hasFirebaseConfig() {
+        const c = getFirebaseConfig();
+        return Boolean(c && c.apiKey && c.projectId);
+      }
+
+      function loadScriptOnce(src) {
+        return new Promise((resolve, reject) => {
+          const existing = document.querySelector(`script[src="${src}"]`);
+          if (existing) {
+            if (existing.dataset.loaded === "1") return resolve();
+            existing.addEventListener("load", () => resolve(), { once: true });
+            existing.addEventListener("error", () => reject(new Error("Falha ao carregar script")), { once: true });
+            return;
+          }
+          const sc = document.createElement("script");
+          sc.src = src;
+          sc.async = true;
+          sc.onload = () => {
+            sc.dataset.loaded = "1";
+            resolve();
+          };
+          sc.onerror = () => reject(new Error("Falha ao carregar script"));
+          document.body.appendChild(sc);
+        });
+      }
+
+      function ensureFirebaseFirestore(timeoutMs = 2500) {
+        if (!hasFirebaseConfig()) return Promise.resolve(null);
+        if (fbDbInstance) return Promise.resolve(fbDbInstance);
+        if (fbLoadingPromise) return fbLoadingPromise;
+
+        const base = "https://www.gstatic.com/firebasejs/10.12.2";
+        const work = (async () => {
+          await loadScriptOnce(`${base}/firebase-app-compat.js`);
+          await loadScriptOnce(`${base}/firebase-firestore-compat.js`);
+          if (!window.firebase) return null;
+          const cfg = getFirebaseConfig();
+          const app = window.firebase.apps && window.firebase.apps.length
+            ? window.firebase.app()
+            : window.firebase.initializeApp(cfg);
+          fbDbInstance = app.firestore();
+          return fbDbInstance;
+        })().catch(() => null);
+
+        const guard = new Promise((resolve) => setTimeout(() => resolve(fbDbInstance), timeoutMs));
+        fbLoadingPromise = Promise.race([work, guard]).finally(() => {
+          fbLoadingPromise = null;
+        });
+        return fbLoadingPromise;
+      }
+
+      const FB_COL = "gestao_gastos_workspaces";
+
+      async function getFbAuth() {
+        if (!hasFirebaseConfig() || navigator.onLine === false) return null;
+        const fdb = await ensureFirebaseFirestore(8000);
+        if (!fdb || !window.firebase) return null;
+        await loadScriptOnce("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js");
+        return window.firebase.auth();
+      }
+
+      async function loadWorkspaceUsers() {
+        const fdb = await ensureFirebaseFirestore(8000);
+        if (!fdb) return;
+        const ws = await fdb.collection(FB_COL).doc("workspace_principal").get();
+        if (!ws.exists) return;
+        const w = ws.data() || {};
+        if (Array.isArray(w.stores) && w.stores.length) db.stores = w.stores;
+        if (Array.isArray(w.users) && w.users.length) db.users = w.users;
+      }
+
+      async function createAuthAccount(email, pass) {
+        try {
+          if (!(await getFbAuth())) return false;
+          let app;
+          try { app = window.firebase.app("sec"); } catch (_e) { app = window.firebase.initializeApp(getFirebaseConfig(), "sec"); }
+          await app.auth().createUserWithEmailAndPassword(email, pass);
+          await app.auth().signOut();
+          return true;
+        } catch (_e) {
+          return false;
+        }
+      }
+
+      async function pushToFirebaseNow() {
+        if (!hasFirebaseConfig() || !currentUser) return false;
+        const fdb = await ensureFirebaseFirestore();
+        if (!fdb) {
+          setSyncBadge("Local");
+          return false;
+        }
+        try {
+          const col = fdb.collection(FB_COL);
+          const now = new Date().toISOString();
+          if (isAdmin()) {
+            const batch = fdb.batch();
+            batch.set(col.doc("workspace_principal"), { updatedAt: now, stores: db.stores, users: db.users, budgets: db.budgets || {}, recurring: db.recurring || [] });
+            db.stores.forEach((st) => {
+              batch.set(col.doc("store_" + st.id), {
+                updatedAt: now,
+                storeId: st.id,
+                expenses: db.expenses.filter((e) => e.storeId === st.id)
+              });
+            });
+            await batch.commit();
+          } else {
+            await col.doc("store_" + currentUser.storeId).set({
+              updatedAt: now,
+              storeId: currentUser.storeId,
+              expenses: db.expenses.filter((e) => e.storeId === currentUser.storeId)
+            });
+          }
+          setSyncBadge("Nuvem OK", true);
+          return true;
+        } catch (_e) {
+          setSyncBadge("Local");
+          return false;
+        }
+      }
+
+      function scheduleFirebasePush() {
+        if (!hasFirebaseConfig() || !currentUser) return;
+        clearTimeout(fbPushTimer);
+        fbPushTimer = setTimeout(() => {
+          syncNow();
+        }, 600);
+      }
+
+      function mergeExpenses(localList, remoteList) {
+        const ts = (e) => String(e.updatedAt || e.createdAt || "");
+        const m = new Map();
+        localList.concat(remoteList).forEach((e) => {
+          if (!e || !e.id) return;
+          const cur = m.get(e.id);
+          if (!cur || ts(e) >= ts(cur)) m.set(e.id, e);
+        });
+        return Array.from(m.values());
+      }
+
+      function refreshAfterSync() {
+        renderExpenses();
+        if (isAdmin()) {
+          renderDashboard();
+          if (activeTab !== "settings") renderSettings();
+        }
+      }
+
+      async function pullFromFirebaseNow() {
+        if (!hasFirebaseConfig() || !currentUser) return false;
+        const fdb = await ensureFirebaseFirestore();
+        if (!fdb) return false;
+        try {
+          const col = fdb.collection(FB_COL);
+          if (!isAdmin() || !localStorage.getItem("gg_synced")) {
+            const ws = await col.doc("workspace_principal").get();
+            if (ws.exists) {
+              const w = ws.data() || {};
+              if (Array.isArray(w.stores) && w.stores.length) db.stores = w.stores;
+              if (Array.isArray(w.users) && w.users.length) db.users = w.users;
+              if (w.budgets && typeof w.budgets === "object") db.budgets = w.budgets;
+              if (Array.isArray(w.recurring)) db.recurring = w.recurring;
+            }
+          }
+          if (isAdmin()) {
+            const snap = await col.get();
+            let remote = [];
+            snap.forEach((d) => {
+              const data = d.data() || {};
+              if (d.id.startsWith("store_") && Array.isArray(data.expenses)) remote = remote.concat(data.expenses);
+            });
+            db.expenses = mergeExpenses(db.expenses, remote);
+          } else {
+            const own = currentUser.storeId;
+            const mine = await col.doc("store_" + own).get();
+            const remote = mine.exists && Array.isArray((mine.data() || {}).expenses) ? mine.data().expenses : [];
+            db.expenses = db.expenses
+              .filter((e) => e.storeId !== own)
+              .concat(mergeExpenses(db.expenses.filter((e) => e.storeId === own), remote));
+          }
+          localStorage.setItem("gg_synced", "1");
+          saveLocalDb(false);
+          refreshAfterSync();
+          return true;
+        } catch (_e) {
+          setSyncBadge("Offline");
+          return false;
+        }
+      }
+
+      let syncing = false;
+      async function syncNow() {
+        if (syncing || !hasFirebaseConfig() || !currentUser) return false;
+        if (navigator.onLine === false) {
+          setSyncBadge("Offline");
+          return false;
+        }
+        syncing = true;
+        try {
+          if (!(await pullFromFirebaseNow())) return false;
+          const ok = await pushToFirebaseNow();
+          if (ok) localStorage.removeItem("gg_dirty");
+          return ok;
+        } finally {
+          syncing = false;
+        }
+      }
+
+      function bindEvents() {
+        document.getElementById("btnInstallApp").addEventListener("click", async function () {
+          if (!deferredInstallPrompt) return;
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          this.classList.add("hidden");
+        });
+
+        document.getElementById("loginForm").addEventListener("submit", async function (e) {
+          e.preventDefault();
+          hideFeedback("loginFeedback");
+          if (Date.now() < loginLockUntil) {
+            showFeedback("loginFeedback", "Muitas tentativas. Aguarde alguns segundos.");
+            return;
+          }
+          const email = String(document.getElementById("loginEmail").value || "").trim().toLowerCase();
+          const pass = String(document.getElementById("loginPassword").value || "");
+
+          let user = null;
+          const sameEmail = (u) => String(u.email || "").trim().toLowerCase() === email;
+          let auth = null;
+          try { auth = await getFbAuth(); } catch (_e) { auth = null; }
+          if (auth) {
+            try {
+              await auth.signInWithEmailAndPassword(email, pass);
+              if (!db.users.find(sameEmail)) await loadWorkspaceUsers();
+              user = db.users.find(sameEmail) || null;
+            } catch (err) {
+              if (["auth/network-request-failed", "auth/operation-not-allowed", "auth/configuration-not-found", "auth/invalid-api-key", "auth/internal-error", "auth/unauthorized-domain"].includes(String((err && err.code) || ""))) {
+                auth = null;
+              } else {
+                const lu = db.users.find(sameEmail);
+                if (lu && (await verifyPassword(lu, pass))) {
+                  try {
+                    await auth.createUserWithEmailAndPassword(email, pass);
+                    user = lu;
+                  } catch (_e2) {}
+                }
+              }
+            }
+            if (user) {
+              user.passwordHash = await hashPassword(pass);
+              saveLocalDb(false);
+            }
+          }
+          if (!auth) {
+            for (const u of db.users) {
+              if (sameEmail(u) && (await verifyPassword(u, pass))) {
+                user = u;
+                break;
+              }
+            }
+          }
+          if (!user) {
+            loginFails++;
+            if (loginFails >= 5) {
+              loginLockUntil = Date.now() + 30000;
+              loginFails = 0;
+            }
+            showFeedback("loginFeedback", "E-mail ou senha inválidos.");
+            return;
+          }
+          loginFails = 0;
+          if (!String(user.passwordHash).startsWith("s2_")) {
+            user.passwordHash = await hashPassword(pass);
+            saveLocalDb(false);
+          }
+          saveSession(user);
+          renderAuthState();
+          showToast(`Bem-vindo, ${user.name}.`);
+          if (user.role === "admin" && ["admin123", "loja123"].includes(pass)) {
+            setTimeout(() => showToast("Senha padrão em uso. Troque em Configurações."), 2800);
+          }
+          if (hasFirebaseConfig()) {
+            syncNow();
+          }
+        });
+
+        document.getElementById("btnForgot").addEventListener("click", async function () {
+          const email = String(document.getElementById("loginEmail").value || "").trim().toLowerCase();
+          if (!email) {
+            showFeedback("loginFeedback", "Digite seu e-mail no campo acima e toque novamente.", "info");
+            return;
+          }
+          let auth = null;
+          try { auth = await getFbAuth(); } catch (_e) {}
+          if (!auth) {
+            showFeedback("loginFeedback", "A recuperação por e-mail precisa de internet e da nuvem (Firebase) configurada. Peça ao gestor para redefinir.", "err");
+            return;
+          }
+          try { await auth.sendPasswordResetEmail(email); } catch (_e) {}
+          showFeedback("loginFeedback", "Se este e-mail estiver cadastrado, você receberá um link para criar uma nova senha. Veja também o spam.", "info");
+        });
+
+        document.getElementById("btnLogout").addEventListener("click", function () {
+          saveSession(null);
+          renderAuthState();
+        });
+
+        document.querySelectorAll(".nav-tab").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            switchTab(btn.dataset.tab);
+          });
+        });
+
+        document.getElementById("expenseForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+          hideFeedback("expenseFormFeedback");
+          if (!currentUser) return;
+
+          const dateVal = document.getElementById("expDate").value;
+          const cents = parseMoneyToCents(document.getElementById("expAmount").value);
+          const category = document.getElementById("expCategory").value;
+          const paymentMethod = document.getElementById("expPayment").value || "Pix";
+          const description = String(document.getElementById("expDesc").value || "").trim();
+          const editId = document.getElementById("editExpenseId").value;
+
+          const storeId = isAdmin() ? document.getElementById("expStore").value : currentUser.storeId;
+
+          if (!dateVal) {
+            showFeedback("expenseFormFeedback", "Informe a data.");
+            return;
+          }
+          if (!Number.isFinite(cents) || cents <= 0) {
+            showFeedback("expenseFormFeedback", "Informe um valor válido maior que zero.");
+            return;
+          }
+          if (!storeId) {
+            showFeedback("expenseFormFeedback", "Unidade inválida para este usuário.");
+            return;
+          }
+          if (!description) {
+            showFeedback("expenseFormFeedback", "Informe a descrição.");
+            return;
+          }
+
+          const storeNameSnapshot = getStoreName(storeId, "Unidade");
+
+          if (editId) {
+            const idx = db.expenses.findIndex((item) => item.id === editId);
+            if (idx === -1) {
+              showFeedback("expenseFormFeedback", "Lançamento não encontrado.");
+              return;
+            }
+            const existing = db.expenses[idx];
+            if (!isAdmin() && (existing.storeId !== currentUser.storeId || existing.createdBy !== currentUser.id)) {
+              showFeedback("expenseFormFeedback", "Sem permissão para editar este lançamento.");
+              return;
+            }
+            db.expenses[idx] = Object.assign({}, existing, {
+              date: dateVal,
+              amountCents: cents,
+              storeId,
+              storeNameSnapshot,
+              category,
+              paymentMethod,
+              description,
+              updatedAt: new Date().toISOString()
+            });
+            saveLocalDb(true);
+            resetExpenseForm();
+            renderExpenses();
+            if (isAdmin()) renderDashboard();
+            showToast("Lançamento atualizado.");
+          } else {
+            const newItem = {
+              id: "exp_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+              date: dateVal,
+              amountCents: cents,
+              storeId,
+              storeNameSnapshot,
+              category,
+              paymentMethod,
+              description,
+              createdBy: currentUser.id,
+              createdAt: new Date().toISOString()
+            };
+            db.expenses.unshift(newItem);
+            saveLocalDb(true);
+            resetExpenseForm();
+            renderExpenses();
+            if (isAdmin()) renderDashboard();
+            showToast("Lançamento salvo.");
+          }
+        });
+
+        document.getElementById("btnCancelEdit").addEventListener("click", resetExpenseForm);
+
+        document.getElementById("expensesList").addEventListener("click", function (e) {
+          const btn = e.target.closest("button[data-action]");
+          if (!btn || !currentUser) return;
+          const action = btn.dataset.action;
+          const id = btn.dataset.id;
+          const item = db.expenses.find((x) => x.id === id);
+          if (!item) return;
+
+          if (!isAdmin() && (item.storeId !== currentUser.storeId || item.createdBy !== currentUser.id)) {
+            showToast("Ação não permitida.");
+            return;
+          }
+
+          if (action === "edit") {
+            document.getElementById("editExpenseId").value = item.id;
+            document.getElementById("formTitle").textContent = "Editar Lançamento";
+            document.getElementById("btnSaveExpense").textContent = "Salvar alterações";
+            document.getElementById("btnCancelEdit").classList.remove("hidden");
+            document.getElementById("expDate").value = item.date;
+            document.getElementById("expAmount").value = formatCentsPlain(item.amountCents).replace(".", ",");
+            populateFormOptions();
+            document.getElementById("expStore").value = item.storeId;
+            document.getElementById("expCategory").value = item.category;
+            document.getElementById("expPayment").value = item.paymentMethod || "Pix";
+            document.getElementById("expDesc").value = item.description;
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          } else if (action === "delete") {
+            if (!confirm("Deseja excluir este lançamento?")) return;
+            item.deleted = true;
+            item.updatedAt = new Date().toISOString();
+            saveLocalDb(true);
+            renderExpenses();
+            if (isAdmin()) renderDashboard();
+            showToast("Lançamento excluído.");
+          }
+        });
+
+        ["filterStore", "filterCategory", "filterSearch"].forEach((id) => {
+          document.getElementById(id).addEventListener("input", renderExpenses);
+          document.getElementById(id).addEventListener("change", renderExpenses);
+        });
+
+        document.getElementById("dashPeriod").addEventListener("change", renderDashboard);
+        document.getElementById("dashRefDate").addEventListener("change", renderDashboard);
+
+        document.getElementById("storesList").addEventListener("click", function (e) {
+          if (!isAdmin()) return;
+          const btn = e.target.closest("button[data-store-action]");
+          if (!btn) return;
+          const action = btn.dataset.storeAction;
+          const id = btn.dataset.id;
+          const row = btn.closest("[data-store-id]");
+          const store = db.stores.find((s) => s.id === id);
+          if (!store) return;
+
+          if (action === "rename") {
+            const input = row ? row.querySelector(".store-name-input") : null;
+            const newName = String(input ? input.value : "").trim();
+            if (!newName) {
+              showToast("Digite um nome válido para a unidade.");
+              return;
+            }
+            store.name = newName;
+            saveLocalDb(true);
+            populateFormOptions();
+            renderExpenses();
+            renderDashboard();
+            renderSettings();
+            showToast("Nome da unidade atualizado.");
+          } else if (action === "delete") {
+            if (db.stores.length <= 1) {
+              showToast("É necessário manter ao menos uma unidade.");
+              return;
+            }
+            if (db.users.some((u) => u.storeId === store.id)) {
+              showToast("Há usuários vinculados a esta unidade. Remova-os antes.");
+              return;
+            }
+            if (!confirm(`Excluir a unidade "${store.name}"? O histórico anterior manterá o nome registrado.`)) {
+              return;
+            }
+            db.expenses.forEach((exp) => {
+              if (exp.storeId === store.id && !exp.storeNameSnapshot) {
+                exp.storeNameSnapshot = store.name;
+              }
+            });
+            db.stores = db.stores.filter((s) => s.id !== id);
+            saveLocalDb(true);
+            populateFormOptions();
+            renderExpenses();
+            renderDashboard();
+            renderSettings();
+            showToast("Unidade removida.");
+          }
+        });
+
+        document.getElementById("addStoreForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!isAdmin()) return;
+          const input = document.getElementById("newStoreName");
+          const name = String(input.value || "").trim();
+          if (!name) return;
+          const slug =
+            name
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/[^a-z0-9]+/g, "_")
+              .replace(/^_|_$/g, "") || "unidade";
+          const id = `${slug}_${Date.now().toString(36)}`;
+          db.stores.push({ id, name });
+          input.value = "";
+          saveLocalDb(true);
+          populateFormOptions();
+          renderSettings();
+          showToast("Unidade adicionada.");
+        });
+
+        document.getElementById("newUserRole").addEventListener("change", function () {
+          const isStaff = this.value === "staff";
+          document.getElementById("newUserStoreField").classList.toggle("hidden", !isStaff);
+        });
+
+        document.getElementById("addUserForm").addEventListener("submit", async function (e) {
+          e.preventDefault();
+          if (!isAdmin()) return;
+          const name = String(document.getElementById("newUserName").value || "").trim();
+          const email = String(document.getElementById("newUserEmail").value || "").trim().toLowerCase();
+          const pass = String(document.getElementById("newUserPass").value || "");
+          const role = document.getElementById("newUserRole").value === "admin" ? "admin" : "staff";
+          const storeId = role === "staff" ? document.getElementById("newUserStore").value : null;
+
+          if (!name || !email || pass.length < 4) {
+            showToast("Preencha nome, e-mail e senha (mín. 4 caracteres).");
+            return;
+          }
+          if (db.users.some((u) => String(u.email || "").toLowerCase() === email)) {
+            showToast("Já existe usuário com este e-mail.");
+            return;
+          }
+          db.users.push({
+            id: "u_" + Date.now().toString(36),
+            name,
+            email,
+            passwordHash: await hashPassword(pass),
+            role,
+            storeId
+          });
+          createAuthAccount(email, pass);
+          saveLocalDb(true);
+          e.target.reset();
+          renderSettings();
+          showToast("Usuário salvo.");
+        });
+
+        document.getElementById("usersList").addEventListener("click", async function (e) {
+          if (!isAdmin()) return;
+          const resetBtn = e.target.closest("button[data-user-action='reset']");
+          if (resetBtn) {
+            const target = db.users.find((u) => u.id === resetBtn.dataset.id);
+            if (target) {
+              let auth = null;
+              try { auth = await getFbAuth(); } catch (_e) {}
+              if (auth) {
+                try {
+                  await auth.sendPasswordResetEmail(target.email);
+                  showToast(`E-mail de redefinição enviado para ${target.email}.`);
+                } catch (_e) {
+                  showToast("Não foi possível enviar o e-mail.");
+                }
+                return;
+              }
+            }
+            const np = target ? prompt(`Nova senha para ${target.name} (mín. 4 caracteres):`) : null;
+            if (!np) return;
+            if (np.length < 4) {
+              showToast("Senha muito curta.");
+              return;
+            }
+            hashPassword(np).then((h) => {
+              target.passwordHash = h;
+              saveLocalDb(true);
+              showToast("Senha redefinida.");
+            });
+            return;
+          }
+          const btn = e.target.closest("button[data-user-action='delete']");
+          if (!btn) return;
+          const id = btn.dataset.id;
+          if (!id || id === currentUser.id) return;
+          db.users = db.users.filter((u) => u.id !== id);
+          saveLocalDb(true);
+          renderSettings();
+          showToast("Usuário removido.");
+        });
+
+        document.getElementById("btnSetup").addEventListener("click", async function () {
+          const name = document.getElementById("setupName").value.trim();
+          const email = document.getElementById("setupEmail").value.trim().toLowerCase();
+          const pass = document.getElementById("setupPass").value;
+          if (!name || !/^\S+@\S+\.\S+$/.test(email) || pass.length < 6) {
+            showFeedback("loginFeedback", "Informe nome, e-mail válido e senha com 6 ou mais caracteres.", "err");
+            return;
+          }
+          try { if (hasFirebaseConfig() && navigator.onLine !== false) await loadWorkspaceUsers(); } catch (_e) {}
+          if (db.users.length > 0) {
+            renderAuthState();
+            showFeedback("loginFeedback", "Já existe um gestor cadastrado. Entre com e-mail e senha.", "info");
+            return;
+          }
+          const u = { id: "u_" + Date.now().toString(36), name, email, passwordHash: await hashPassword(pass), role: "admin", storeId: null };
+          db.users.push(u);
+          createAuthAccount(email, pass);
+          saveSession(u);
+          saveLocalDb(true);
+          renderAuthState();
+          showToast("Gestor criado. Bem-vindo!");
+        });
+
+        document.getElementById("btnBudSave").addEventListener("click", function () {
+          if (!isAdmin()) return;
+          const c = parseMoneyToCents(document.getElementById("budValue").value);
+          if (!c || !isFinite(c) || c <= 0) return showToast("Informe um limite válido.");
+          db.budgets = db.budgets || {};
+          db.budgets[document.getElementById("budCategory").value] = c;
+          document.getElementById("budValue").value = "";
+          saveLocalDb(true);
+          renderBudgetSettings();
+          showToast("Limite salvo.");
+        });
+        document.getElementById("budList").addEventListener("click", function (e) {
+          const btn = e.target.closest("button[data-bud]");
+          if (!btn || !isAdmin()) return;
+          delete db.budgets[btn.dataset.bud];
+          saveLocalDb(true);
+          renderBudgetSettings();
+        });
+
+        document.getElementById("btnRecSave").addEventListener("click", function () {
+          if (!isAdmin()) return;
+          const c = parseMoneyToCents(document.getElementById("recValue").value);
+          const desc = document.getElementById("recDesc").value.trim();
+          const day = Math.min(28, Math.max(1, parseInt(document.getElementById("recDay").value, 10) || 1));
+          if (!desc || !c || !isFinite(c) || c <= 0) return showToast("Informe descrição e valor válidos.");
+          db.recurring = db.recurring || [];
+          db.recurring.push({ id: Date.now().toString(36), storeId: document.getElementById("recStore").value, category: document.getElementById("recCategory").value, paymentMethod: "Pix", description: desc, amountCents: c, day, next: todayIso().slice(0, 7) });
+          document.getElementById("recDesc").value = "";
+          document.getElementById("recValue").value = "";
+          runRecurring();
+          saveLocalDb(true);
+          renderBudgetSettings();
+          showToast("Recorrente salvo.");
+        });
+        document.getElementById("recList").addEventListener("click", function (e) {
+          const btn = e.target.closest("button[data-rec]");
+          if (!btn || !isAdmin()) return;
+          db.recurring = db.recurring.filter((x) => x.id !== btn.dataset.rec);
+          saveLocalDb(true);
+          renderBudgetSettings();
+        });
+
+        document.getElementById("btnReportPrint").addEventListener("click", function () {
+          if (!isAdmin()) return;
+          const r = reportItems();
+          if (!r) return showToast("Escolha o mês.");
+          if (!r.items.length) return showToast("Não há lançamentos neste período.");
+          const html = buildReportHtml(r);
+          const w = window.open("", "_blank");
+          if (!w) {
+            triggerDownload(new Blob([html], { type: "text/html;charset=utf-8" }), `relatorio_${r.ym}.html`);
+            return showToast("Pop-up bloqueado: baixei o relatório. Abra e imprima.");
+          }
+          w.document.write(html);
+          w.document.close();
+          w.focus();
+          setTimeout(() => w.print(), 400);
+        });
+
+        document.getElementById("btnReportCsv").addEventListener("click", function () {
+          if (!isAdmin()) return;
+          const r = reportItems();
+          if (!r) return showToast("Escolha o mês.");
+          if (!r.items.length) return showToast("Não há lançamentos neste período.");
+          const lines = [["Data", "Unidade", "Categoria", "Forma de Pagamento", "Descricao", "Valor (R$)"].map(safeCsvCell).join(";")];
+          r.items.forEach((x) => lines.push([brDate(x.date), getStoreName(x.storeId, x.storeNameSnapshot), x.category, x.paymentMethod || "Pix", x.description, formatCentsPlain(x.amountCents).replace(".", ",")].map(safeCsvCell).join(";")));
+          triggerDownload(new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" }), `relatorio_${r.ym}.csv`);
+        });
+
+        document.getElementById("btnExportCsv").addEventListener("click", function () {
+          if (!isAdmin()) return;
+          const headers = ["Data", "Unidade", "Categoria", "Forma de Pagamento", "Descricao", "Valor (R$)"];
+          const lines = [headers.map(safeCsvCell).join(";")];
+          db.expenses.filter((x) => !x.deleted).forEach((item) => {
+            lines.push(
+              [
+                item.date,
+                getStoreName(item.storeId, item.storeNameSnapshot),
+                item.category,
+                item.paymentMethod || "Pix",
+                item.description,
+                formatCentsPlain(item.amountCents).replace(".", ",")
+              ]
+                .map(safeCsvCell)
+                .join(";")
+            );
+          });
+          const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+          triggerDownload(blob, `gastos_${todayIso()}.csv`);
+        });
+
+        document.getElementById("btnExportJson").addEventListener("click", function () {
+          if (!isAdmin()) return;
+          const blob = new Blob([JSON.stringify(db, null, 2)], { type: "application/json" });
+          triggerDownload(blob, `backup_gestao_gastos_${todayIso()}.json`);
+        });
+
+        document.getElementById("inputRestoreJson").addEventListener("change", function (e) {
+          if (!isAdmin()) return;
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function () {
+            try {
+              const parsed = JSON.parse(String(reader.result || ""));
+              if (!Array.isArray(parsed.stores) || !Array.isArray(parsed.users) || !Array.isArray(parsed.expenses)) {
+                showToast("Arquivo JSON inválido.");
+                return;
+              }
+              db = {
+                stores: parsed.stores,
+                users: parsed.users,
+                expenses: parsed.expenses,
+                budgets: parsed.budgets && typeof parsed.budgets === "object" ? parsed.budgets : {},
+                recurring: Array.isArray(parsed.recurring) ? parsed.recurring : [],
+                recoveryCodes: parsed.recoveryCodes && typeof parsed.recoveryCodes === "object" ? parsed.recoveryCodes : {}
+              };
+              saveLocalDb(true);
+              renderAuthState();
+              showToast("Backup restaurado com sucesso.");
+            } catch (_err) {
+              showToast("Erro ao ler arquivo JSON.");
+            }
+            e.target.value = "";
+          };
+          reader.readAsText(file);
+        });
+
+        document.getElementById("btnSaveFirebase").addEventListener("click", function () {
+          if (!isAdmin()) return;
+          const cfg = {
+            apiKey: String(document.getElementById("fbApiKey").value || "").trim(),
+            projectId: String(document.getElementById("fbProjectId").value || "").trim(),
+            authDomain: String(document.getElementById("fbAuthDomain").value || "").trim(),
+            appId: String(document.getElementById("fbAppId").value || "").trim()
+          };
+          localStorage.setItem(FB_CFG_KEY, JSON.stringify(cfg));
+          fbDbInstance = null;
+          if (cfg.apiKey && cfg.projectId) {
+            setSyncBadge("Nuvem", true);
+            syncNow();
+            showToast("Configuração do Firebase salva.");
+          } else {
+            setSyncBadge("Local");
+            showToast("Preencha apiKey e projectId para ativar a nuvem.");
+          }
+        });
+
+        document.getElementById("btnClearFirebase").addEventListener("click", function () {
+          if (!isAdmin()) return;
+          localStorage.removeItem(FB_CFG_KEY);
+          fbDbInstance = null;
+          setSyncBadge("Local");
+          renderSettings();
+          showToast("Configuração do Firebase removida.");
+        });
+
+        document.getElementById("btnSyncCloudNow").addEventListener("click", function () {
+          if (!hasFirebaseConfig()) {
+            showToast("Modo local ativo. Configure o Firebase se quiser sincronizar na nuvem.");
+            return;
+          }
+          syncNow().then((ok) => {
+            showToast(ok ? "Sincronizado com o Firebase." : "Não foi possível sincronizar agora.");
+          });
+        });
+      }
+
+      function triggerDownload(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function initApp() {
+        document.getElementById("expDate").value = todayIso();
+        document.getElementById("dashRefDate").value = todayIso();
+        document.querySelectorAll('input[type="password"]').forEach((inp) => {
+          const t = document.createElement("button");
+          t.type = "button";
+          t.textContent = "Mostrar senha";
+          t.setAttribute("aria-label", "Mostrar ou ocultar a senha");
+          t.style.cssText = "background:none;border:0;padding:6px 2px;margin-top:2px;font-size:13px;color:#2563eb;cursor:pointer;";
+          t.addEventListener("click", () => {
+            const show = inp.type === "password";
+            inp.type = show ? "text" : "password";
+            t.textContent = show ? "Ocultar senha" : "Mostrar senha";
+          });
+          inp.insertAdjacentElement("afterend", t);
+        });
+
+        bindEvents();
+        renderAuthState();
+
+        window.addEventListener("online", () => syncNow());
+        window.addEventListener("offline", () => { if (hasFirebaseConfig()) setSyncBadge("Offline"); });
+        document.addEventListener("visibilitychange", () => { if (!document.hidden) syncNow(); });
+        setInterval(() => { if (!document.hidden) syncNow(); }, 60000);
+        if ("serviceWorker" in navigator && /^https?:/.test(location.protocol)) {
+          navigator.serviceWorker.register("sw.js").catch(() => {});
+        }
+
+        if (hasFirebaseConfig()) {
+          setSyncBadge("Nuvem", true);
+          const bgSync = () => {
+            if (currentUser) syncNow();
+          };
+          if (typeof window.requestIdleCallback === "function") {
+            window.requestIdleCallback(bgSync, { timeout: 1500 });
+          } else {
+            setTimeout(bgSync, 300);
+          }
+        } else {
+          setSyncBadge("Local");
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp, { once: true });
+      } else {
+        initApp();
+      }
+    })();
+  </script>
+</body>
+</html>
