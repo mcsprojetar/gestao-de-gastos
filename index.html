@@ -772,7 +772,7 @@
           <div class="grid-2">
             <div class="field">
               <label for="newUserPass">Senha</label>
-              <input autocomplete="new-password" id="newUserPass" type="password" class="input" required placeholder="Mín. 4 caracteres" />
+              <input autocomplete="new-password" id="newUserPass" type="password" class="input" required placeholder="Mín. 6 caracteres" />
             </div>
             <div class="field">
               <label for="newUserRole">Perfil</label>
@@ -1177,7 +1177,7 @@
           appView.classList.add("hidden");
           userBadge.classList.add("hidden");
           btnLogout.classList.add("hidden");
-          document.getElementById("setupBox").classList.toggle("hidden", db.users.length > 0);
+          document.getElementById("setupBox").classList.toggle("hidden", db.users.length > 0 || location.hash !== "#primeiro-acesso");
           return;
         }
 
@@ -1799,6 +1799,14 @@ ${r.items.map((x) => `<tr><td>${brDate(x.date)}</td><td>${escapeHtml(unit(x))}</
 
       const FB_COL = "gestao_gastos_workspaces";
 
+      function mergeRemoteUsers(list) {
+        return list.map((u) => {
+          const em = String(u.email || "").toLowerCase();
+          const loc = db.users.find((x) => x.id === u.id || String(x.email || "").toLowerCase() === em);
+          return Object.assign({}, u, { passwordHash: (loc && loc.passwordHash) || u.passwordHash || "" });
+        });
+      }
+
       async function getFbAuth() {
         if (!hasFirebaseConfig() || navigator.onLine === false) return null;
         const fdb = await ensureFirebaseFirestore(8000);
@@ -1814,7 +1822,7 @@ ${r.items.map((x) => `<tr><td>${brDate(x.date)}</td><td>${escapeHtml(unit(x))}</
         if (!ws.exists) return;
         const w = ws.data() || {};
         if (Array.isArray(w.stores) && w.stores.length) db.stores = w.stores;
-        if (Array.isArray(w.users) && w.users.length) db.users = w.users;
+        if (Array.isArray(w.users) && w.users.length) db.users = mergeRemoteUsers(w.users);
       }
 
       async function createAuthAccount(email, pass) {
@@ -1842,7 +1850,15 @@ ${r.items.map((x) => `<tr><td>${brDate(x.date)}</td><td>${escapeHtml(unit(x))}</
           const now = new Date().toISOString();
           if (isAdmin()) {
             const batch = fdb.batch();
-            batch.set(col.doc("workspace_principal"), { updatedAt: now, stores: db.stores, users: db.users, budgets: db.budgets || {}, recurring: db.recurring || [] });
+            const pubUsers = db.users.map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, storeId: u.storeId || null }));
+            const acl = { admins: [], staff: {} };
+            db.users.forEach((u) => {
+              const em = String(u.email || "").trim().toLowerCase();
+              if (u.role === "admin") acl.admins.push(em);
+              else if (u.storeId) acl.staff[em] = u.storeId;
+            });
+            batch.set(col.doc("workspace_principal"), { updatedAt: now, stores: db.stores, users: pubUsers, budgets: db.budgets || {}, recurring: db.recurring || [] });
+            batch.set(col.doc("acl"), acl);
             db.stores.forEach((st) => {
               batch.set(col.doc("store_" + st.id), {
                 updatedAt: now,
@@ -1904,7 +1920,7 @@ ${r.items.map((x) => `<tr><td>${brDate(x.date)}</td><td>${escapeHtml(unit(x))}</
             if (ws.exists) {
               const w = ws.data() || {};
               if (Array.isArray(w.stores) && w.stores.length) db.stores = w.stores;
-              if (Array.isArray(w.users) && w.users.length) db.users = w.users;
+              if (Array.isArray(w.users) && w.users.length) db.users = mergeRemoteUsers(w.users);
               if (w.budgets && typeof w.budgets === "object") db.budgets = w.budgets;
               if (Array.isArray(w.recurring)) db.recurring = w.recurring;
             }
@@ -2283,8 +2299,8 @@ ${r.items.map((x) => `<tr><td>${brDate(x.date)}</td><td>${escapeHtml(unit(x))}</
           const role = document.getElementById("newUserRole").value === "admin" ? "admin" : "staff";
           const storeId = role === "staff" ? document.getElementById("newUserStore").value : null;
 
-          if (!name || !email || pass.length < 4) {
-            showToast("Preencha nome, e-mail e senha (mín. 4 caracteres).");
+          if (!name || !email || pass.length < 6) {
+            showToast("Preencha nome, e-mail e senha (mín. 6 caracteres).");
             return;
           }
           if (db.users.some((u) => String(u.email || "").toLowerCase() === email)) {
@@ -2326,9 +2342,9 @@ ${r.items.map((x) => `<tr><td>${brDate(x.date)}</td><td>${escapeHtml(unit(x))}</
                 return;
               }
             }
-            const np = target ? prompt(`Nova senha para ${target.name} (mín. 4 caracteres):`) : null;
+            const np = target ? prompt(`Nova senha para ${target.name} (mín. 6 caracteres):`) : null;
             if (!np) return;
-            if (np.length < 4) {
+            if (np.length < 6) {
               showToast("Senha muito curta.");
               return;
             }
