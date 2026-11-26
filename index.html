@@ -46,6 +46,7 @@
       font-size: 15px;
       line-height: 1.45;
       overflow-x: hidden;
+      overscroll-behavior-x: none;
       min-height: 100%;
     }
 
@@ -182,7 +183,7 @@
       max-width: 960px;
       margin: 0 auto;
       padding: 16px;
-      padding-bottom: calc(92px + var(--safe-bottom));
+      padding-bottom: calc(124px + var(--safe-bottom));
     }
 
     .login-wrap {
@@ -307,11 +308,23 @@
         box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.08);
         border-radius: 0;
       }
+      .nav-tabs {
+        flex-wrap: wrap;
+        gap: 6px;
+        overflow: hidden;
+        touch-action: pan-y;
+        overscroll-behavior-x: none;
+      }
       .nav-tab {
+        flex: 1 1 calc(33.333% - 6px);
+        min-width: 0;
         border-radius: 11px;
-        min-height: 42px;
-        padding: 8px 6px;
-        font-size: 13px;
+        min-height: 38px;
+        padding: 6px 4px;
+        font-size: 12px;
+      }
+      .container-pad-fix {
+        padding-bottom: calc(120px + var(--safe-bottom));
       }
     }
 
@@ -501,7 +514,7 @@
 
     .toast {
       position: fixed;
-      bottom: calc(74px + var(--safe-bottom));
+      bottom: calc(112px + var(--safe-bottom));
       left: 50%;
       transform: translateX(-50%);
       background: var(--primary);
