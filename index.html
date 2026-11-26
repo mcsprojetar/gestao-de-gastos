@@ -605,6 +605,7 @@
       <button id="tabExpenses" type="button" class="nav-tab active" data-tab="expenses">Lançamentos</button>
       <button id="tabDashboard" type="button" class="nav-tab" data-tab="dashboard">Dashboard</button>
       <button id="tabCompare" type="button" class="nav-tab" data-tab="compare">Comparativo</button>
+      <button id="tabAssistant" type="button" class="nav-tab" data-tab="assistant">Assistente</button>
       <button id="tabSettings" type="button" class="nav-tab" data-tab="settings">Configurações</button>
     </nav>
 
@@ -760,6 +761,19 @@
       </div>
       <div class="card"><h3 class="card-title">Por unidade</h3><div id="cmpStores" style="overflow-x:auto;"></div></div>
       <div class="card"><h3 class="card-title">Por categoria</h3><div id="cmpCats" style="overflow-x:auto;"></div></div>
+    </section>
+
+    <section id="panelAssistant" class="hidden">
+      <div class="card">
+        <h3 class="card-title">Assistente de gastos</h3>
+        <div id="aiChips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;"></div>
+        <div id="aiLog" style="max-height: 50vh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;"></div>
+        <div style="display: flex; gap: 8px;">
+          <input id="aiInput" class="input" placeholder="Pergunte sobre os gastos..." autocomplete="off" />
+          <button id="btnAiSend" type="button" class="btn btn-primary">Enviar</button>
+        </div>
+        <p style="font-size: 12px; color: var(--muted); margin: 8px 0 0;">Responde com os lançamentos deste aparelho. Use o botão Atualizar para trazer os mais novos.</p>
+      </div>
     </section>
 
     <section id="panelSettings" class="hidden">
@@ -1216,12 +1230,14 @@
           userBadge.textContent = `${currentUser.name} · Gestor`;
           tabDash.classList.remove("hidden");
           document.getElementById("tabCompare").classList.remove("hidden");
+          document.getElementById("tabAssistant").classList.remove("hidden");
           tabCfg.classList.remove("hidden");
         } else {
           const uName = getStoreName(currentUser.storeId, "Unidade");
           userBadge.textContent = `${currentUser.name} · ${uName}`;
           tabDash.classList.add("hidden");
           document.getElementById("tabCompare").classList.add("hidden");
+          document.getElementById("tabAssistant").classList.add("hidden");
           tabCfg.classList.add("hidden");
           if (activeTab === "dashboard" || activeTab === "settings") {
             activeTab = "expenses";
@@ -1238,7 +1254,7 @@
       }
 
       function switchTab(tabName) {
-        if (!isAdmin() && (tabName === "dashboard" || tabName === "settings" || tabName === "compare")) {
+        if (!isAdmin() && (tabName === "dashboard" || tabName === "settings" || tabName === "compare" || tabName === "assistant")) {
           tabName = "expenses";
         }
         activeTab = tabName;
@@ -1251,6 +1267,7 @@
         document.getElementById("panelExpenses").classList.toggle("hidden", tabName !== "expenses");
         document.getElementById("panelDashboard").classList.toggle("hidden", tabName !== "dashboard" || !isAdmin());
         document.getElementById("panelCompare").classList.toggle("hidden", tabName !== "compare" || !isAdmin());
+        document.getElementById("panelAssistant").classList.toggle("hidden", tabName !== "assistant" || !isAdmin());
         document.getElementById("panelSettings").classList.toggle("hidden", tabName !== "settings" || !isAdmin());
 
         if (tabName === "dashboard" && isAdmin()) {
@@ -1258,6 +1275,7 @@
           renderBudgetsDash();
         }
         if (tabName === "compare" && isAdmin()) renderCompare();
+        if (tabName === "assistant" && isAdmin()) aiInit();
         if (tabName === "settings" && isAdmin()) {
           renderSettings();
           fillReportControls();
@@ -1676,6 +1694,157 @@ ${r.items.map((x) => `<tr><td>${brDate(x.date)}</td><td>${escapeHtml(unit(x))}</
         renderBars("dashByStore", Array.from(byStoreMap.entries()).sort((a, b) => b[1] - a[1]), curTotal);
         renderBars("dashByCategory", Array.from(byCatMap.entries()).sort((a, b) => b[1] - a[1]), curTotal);
         renderCompareDash(refInput.value);
+      }
+
+      function normQ(s) {
+        return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      }
+
+      function aiPeriod(q) {
+        const iso = (d) => toIsoDate(d);
+        const t = new Date();
+        const today = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+        const day = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+        const mk = (label, a, b, pa, pb) => ({ label, from: iso(a), to: iso(b), pf: iso(pa), pt: iso(pb) });
+        let m = q.match(/ultimos?\s+(\d{1,3})\s+dias/);
+        if (m) {
+          const n = Math.max(1, +m[1]);
+          return mk(`nos últimos ${n} dias`, day(today, -(n - 1)), today, day(today, -(2 * n - 1)), day(today, -n));
+        }
+        if (/\bontem\b/.test(q)) return mk("ontem", day(today, -1), day(today, -1), day(today, -2), day(today, -2));
+        if (/\bhoje\b/.test(q)) return mk("hoje", today, today, day(today, -1), day(today, -1));
+        const names = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+        const mi = names.findIndex((n) => new RegExp("\\b" + n + "\\b").test(q));
+        if (mi >= 0) {
+          const y = mi > today.getMonth() ? today.getFullYear() - 1 : today.getFullYear();
+          return mk(`em ${names[mi]} de ${y}`, new Date(y, mi, 1), new Date(y, mi + 1, 0), new Date(y, mi - 1, 1), new Date(y, mi, 0));
+        }
+        const past = /(passad|anterior)/.test(q);
+        const kind = /semana|semanal/.test(q) ? "weekly" : /\bano\b|anual/.test(q) ? "yearly" : "monthly";
+        let r = getPeriodRange(kind, todayIso());
+        if (past) r = getPeriodRange(kind, iso(r.prevStart));
+        const lab = { weekly: ["nesta semana", "na semana passada"], monthly: ["neste mês", "no mês passado"], yearly: ["neste ano", "no ano passado"] }[kind][past ? 1 : 0];
+        return mk(lab, r.curStart, r.curEnd, r.prevStart, r.prevEnd);
+      }
+
+      function aiAnswer(raw) {
+        const q = normQ(raw);
+        const live = db.expenses.filter((x) => !x.deleted);
+        if (!live.length) return "Ainda não há lançamentos no app.";
+        const cmpMode = /compar|aument|subiu|diminu|caiu|em relacao|variac|evolu/.test(q);
+        const P = aiPeriod(cmpMode && /(com|relacao)\s+(a\s+|ao\s+)?(o\s+|a\s+)?(mes|semana|ano)\s+(passad|anterior)/.test(q) ? q.replace(/passad\w*|anterior/g, " ") : q);
+        const stores = db.stores.filter((st) => q.includes(normQ(st.name)));
+        const cats = Array.from(new Set(categoryNames().concat(live.map((x) => x.category).filter(Boolean)))).filter((c) => q.includes(normQ(c)));
+        const pays = Array.from(new Set(live.map((x) => x.paymentMethod || "Pix"))).filter((pm) => q.includes(normQ(pm)));
+        const f = (x) => (!stores.length || stores.some((s) => s.id === x.storeId)) && (!cats.length || cats.includes(x.category)) && (!pays.length || pays.includes(x.paymentMethod || "Pix"));
+        const inP = (x, a, b) => x.date >= a && x.date <= b;
+        const cur = live.filter((x) => f(x) && inP(x, P.from, P.to));
+        const prev = live.filter((x) => f(x) && inP(x, P.pf, P.pt));
+        const amt = (x) => Number(x.amountCents) || 0;
+        const tot = (l) => l.reduce((t, x) => t + amt(x), 0);
+        const rank = (arr, keyFn) => {
+          const m = new Map();
+          arr.forEach((x) => m.set(keyFn(x), (m.get(keyFn(x)) || 0) + amt(x)));
+          return Array.from(m.entries());
+        };
+        const pct = (v, total) => (total ? ((v / total) * 100).toFixed(1).replace(".", ",") : "0,0");
+        const lines = (rows, total) => rows.map(([k, v], i) => `${i + 1}. ${k}: ${formatCents(v)} (${pct(v, total)}%)`).join("\n");
+        const scope = [...stores.map((s) => s.name), ...cats, ...pays].join(", ");
+        const head = `${P.label} (${brDate(P.from)} a ${brDate(P.to)})${scope ? " · " + scope : ""}`;
+        const less = /\b(menos|menor|menores|economi)/.test(q);
+        const delta = (c, p) => (p <= 0 ? (c > 0 ? "novo" : "—") : `${c >= p ? "+" : ""}${(((c - p) / p) * 100).toFixed(1).replace(".", ",")}%`);
+
+        if (/orcament|limite/.test(q)) {
+          const b = Object.entries(db.budgets || {});
+          if (!b.length) return "Nenhum limite de orçamento definido. Defina em Configurações.";
+          const ym = todayIso().slice(0, 7);
+          const sp = {};
+          live.forEach((x) => { if (String(x.date).startsWith(ym)) sp[x.category] = (sp[x.category] || 0) + amt(x); });
+          return "Orçamentos deste mês:\n" + b.map(([c, l]) => `• ${c}: ${formatCents(sp[c] || 0)} de ${formatCents(l)} (${pct(sp[c] || 0, l)}%)${(sp[c] || 0) >= l ? " — LIMITE ULTRAPASSADO" : ""}`).join("\n");
+        }
+        if (/maior(es)?\s+(gasto|despesa|lancamento|compra)|mais caro/.test(q)) {
+          const top = cur.slice().sort((a, b) => amt(b) - amt(a)).slice(0, 5);
+          if (!top.length) return `Não encontrei lançamentos ${head}.`;
+          return `Maiores gastos ${head}:\n` + top.map((x, i) => `${i + 1}. ${formatCents(amt(x))} · ${brDate(x.date)} · ${getStoreName(x.storeId, "")} · ${x.category} · ${x.description || "sem descrição"}`).join("\n");
+        }
+        if (/compar|aument|subiu|diminu|caiu|em relacao|variac|evolu/.test(q)) {
+          const c = tot(cur), p = tot(prev);
+          let out = `Comparativo ${head}:\nAtual: ${formatCents(c)}\nAnterior (${brDate(P.pf)} a ${brDate(P.pt)}): ${formatCents(p)}\nVariação: ${delta(c, p)}`;
+          if (!stores.length) {
+            out += "\n\nPor unidade:\n" + db.stores.map((st) => {
+              const sc = tot(cur.filter((x) => x.storeId === st.id)), sp2 = tot(prev.filter((x) => x.storeId === st.id));
+              return `• ${st.name}: ${formatCents(sc)} (antes ${formatCents(sp2)}, ${delta(sc, sp2)})`;
+            }).join("\n");
+          }
+          const cc = rank(cur, (x) => x.category), pc = new Map(rank(prev, (x) => x.category));
+          const up = cc.map(([k, v]) => [k, v - (pc.get(k) || 0)]).sort((a, b) => b[1] - a[1])[0];
+          if (up && up[1] > 0) out += `\n\nCategoria que mais subiu: ${up[0]} (+${formatCents(up[1])}).`;
+          return out;
+        }
+        if (/media/.test(q)) {
+          if (!cur.length) return `Não encontrei lançamentos ${head}.`;
+          const days = Math.max(1, Math.round((new Date(P.to) - new Date(P.from)) / 86400000) + 1);
+          return `Média ${head}:\n• Por lançamento: ${formatCents(Math.round(tot(cur) / cur.length))}\n• Por dia: ${formatCents(Math.round(tot(cur) / days))}\n• Total: ${formatCents(tot(cur))} em ${cur.length} lançamentos.`;
+        }
+        if (/quantos?\s+lancamento|quantas?\s+(despesa|compra)/.test(q)) return `${cur.length} lançamento(s) ${head}, somando ${formatCents(tot(cur))}.`;
+        if (/(forma|tipo)s?\s+de\s+pagamento|pagamentos?/.test(q) && !pays.length) {
+          if (!cur.length) return `Não encontrei lançamentos ${head}.`;
+          return `Por forma de pagamento ${head}:\n` + lines(rank(cur, (x) => x.paymentMethod || "Pix").sort((a, b) => b[1] - a[1]), tot(cur));
+        }
+        if (/categoria/.test(q) && !cats.length) {
+          if (!cur.length) return `Não encontrei lançamentos ${head}.`;
+          const rows = rank(cur, (x) => x.category).sort((a, b) => (less ? a[1] - b[1] : b[1] - a[1]));
+          return `${less ? "Menor" : "Maior"} categoria ${head}: ${rows[0][0]} com ${formatCents(rows[0][1])}.\n\n` + lines(rows, tot(cur));
+        }
+        if ((/(loja|lojas|unidade|unidades|filial)/.test(q) || /\bqual\b.*gast/.test(q)) && /(mais|menos|maior|menor|rank|gast)/.test(q) && !stores.length && !cats.length) {
+          const rows = db.stores.map((st) => [st.name, tot(cur.filter((x) => x.storeId === st.id))]).sort((a, b) => (less ? a[1] - b[1] : b[1] - a[1]));
+          if (!tot(cur)) return `Não encontrei lançamentos ${head}.`;
+          return `${less ? "Gastou menos" : "Gastou mais"} ${head}: ${rows[0][0]} com ${formatCents(rows[0][1])}.\n\n` + lines(rows, tot(cur));
+        }
+        if (/quanto|total|gastei|gastamos|gastou|gasto|soma|despesa/.test(q)) {
+          if (!cur.length) return `Não encontrei lançamentos ${head}.`;
+          let out = `Total ${head}: ${formatCents(tot(cur))} em ${cur.length} lançamento(s).`;
+          if (!stores.length && db.stores.length > 1) out += "\n\n" + lines(db.stores.map((st) => [st.name, tot(cur.filter((x) => x.storeId === st.id))]).sort((a, b) => b[1] - a[1]), tot(cur));
+          return out;
+        }
+        return "Não entendi essa pergunta. Tente, por exemplo:\n• Qual loja gastou mais este mês?\n• Quanto gastamos esta semana?\n• Maiores gastos do mês\n• Comparar com o mês passado\n• Gastos por categoria\n• Como estão os orçamentos?\n\nVocê pode citar o nome da loja, da categoria ou da forma de pagamento.";
+      }
+
+      function aiAdd(role, text) {
+        const log = document.getElementById("aiLog");
+        const d = document.createElement("div");
+        d.textContent = text;
+        d.style.cssText = "white-space:pre-wrap;padding:8px 12px;border-radius:12px;max-width:92%;font-size:14px;line-height:1.4;" + (role === "user" ? "align-self:flex-end;background:#2563eb;color:#fff;" : "align-self:flex-start;background:var(--line);color:var(--ink);");
+        log.appendChild(d);
+        log.scrollTop = log.scrollHeight;
+      }
+
+      function aiSend(text) {
+        const input = document.getElementById("aiInput");
+        const q = String(text != null ? text : input.value).trim();
+        if (!q) return;
+        aiAdd("user", q);
+        input.value = "";
+        let ans;
+        try { ans = aiAnswer(q); } catch (_e) { ans = "Não consegui calcular isso. Tente reformular a pergunta."; }
+        aiAdd("bot", ans);
+      }
+
+      function aiInit() {
+        const chips = document.getElementById("aiChips");
+        if (!chips.children.length) {
+          ["Qual loja gastou mais este mês?", "Quanto gastamos esta semana?", "Maiores gastos do mês", "Comparar com o mês passado", "Gastos por categoria", "Como estão os orçamentos?"].forEach((t) => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.textContent = t;
+            b.style.cssText = "border:1px solid var(--line);background:#fff;border-radius:16px;padding:6px 10px;font-size:12px;cursor:pointer;";
+            b.addEventListener("click", () => aiSend(t));
+            chips.appendChild(b);
+          });
+        }
+        if (!document.getElementById("aiLog").children.length) {
+          aiAdd("bot", "Olá! Pergunte sobre os gastos das suas lojas. Toque em uma sugestão ou digite sua pergunta.");
+        }
       }
 
       function renderCompare() {
@@ -2447,6 +2616,8 @@ ${r.items.map((x) => `<tr><td>${brDate(x.date)}</td><td>${escapeHtml(unit(x))}</
           showToast("Usuário removido.");
         });
 
+        document.getElementById("btnAiSend").addEventListener("click", () => aiSend());
+        document.getElementById("aiInput").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); aiSend(); } });
         document.getElementById("cmpPeriod").addEventListener("change", renderCompare);
         document.getElementById("cmpRef").addEventListener("change", renderCompare);
         document.getElementById("btnRefresh").addEventListener("click", async function () {
